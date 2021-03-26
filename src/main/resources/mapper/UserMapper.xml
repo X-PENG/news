@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.peng.news.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="userVO" autoMapping="true">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="real_name" property="realName"/>
+        <result column="passwd" property="passwd"/>
+        <result column="gender" property="gender"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="description" property="description"/>
+        <result column="locked" property="locked"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="ResultMapWithRoles" type="UserVO" extends="BaseResultMap">
+        <collection property="roles" column="id" ofType="RoleVO" select="com.peng.news.mapper.RoleMapper.getRolesByUserId"/>
+    </resultMap>
+    
+    <select id="getUserByUsername" resultMap="ResultMapWithRoles">
+        select *
+        from user
+        where username=#{username} and deleted=0
+    </select>
+
+    <select id="getUserByUserId" resultMap="ResultMapWithRoles">
+        SELECT *
+        FROM user
+        where id=#{userId} and deleted=0
+    </select>
+
+    <select id="selectUsersByPage" resultMap="ResultMapWithRoles">
+        select *
+        from user
+        where deleted=0
+        order by create_time desc
+    </select>
+</mapper>

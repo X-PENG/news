@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.peng.news.mapper.RoleMapper">
+
+    <resultMap id="BaseResultMap" type="RoleVO">
+        <id property="id" column="id"/>
+        <result property="nameEn" column="name_en"/>
+        <result property="nameZh" column="name_zh"/>
+        <result property="description" column="description"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap id="ResultMapWithResourceIdList" type="RoleVO" extends="BaseResultMap">
+        <collection property="resourceIdList" ofType="integer" column="id" select="com.peng.news.mapper.RoleResourceMapper.getAllResourceIdByRoleId"/>
+    </resultMap>
+
+    <select id="getRolesByUserId" resultType="roleVO">
+        select t2.*
+        from user_role t1 join role t2 on t1.role_id=t2.id
+        where t1.user_id=#{userId}
+    </select>
+
+    <select id="getRolesByResourceId" resultType="RoleVO">
+        select t2.*
+        from role_resource t1 join role t2 on t1.role_id=t2.id
+        where t1.resource_id=#{resourceId}
+    </select>
+
+    <select id="selectRolesByPage" resultMap="BaseResultMap">
+        select *
+        from role
+        order by create_time
+    </select>
+</mapper>
