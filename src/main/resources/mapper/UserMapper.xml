@@ -23,6 +23,10 @@
         <collection property="roles" column="id" ofType="RoleVO" select="com.peng.news.mapper.RoleMapper.getRolesByUserId"/>
     </resultMap>
     
+    <sql id="columnsWithoutPasswd">
+        id, username, real_name, gender, phone, email, description, locked, deleted, create_time, update_time
+    </sql>
+    
     <select id="getUserByUsername" resultMap="ResultMapWithRoles">
         select *
         from user
@@ -30,13 +34,15 @@
     </select>
 
     <select id="getUserByUserId" resultMap="ResultMapWithRoles">
-        SELECT *
+        SELECT
+        <include refid="columnsWithoutPasswd"/>
         FROM user
         where id=#{userId} and deleted=0
     </select>
 
     <select id="selectUsersByPage" resultMap="ResultMapWithRoles">
-        select *
+        select
+        <include refid="columnsWithoutPasswd"/>
         from user
         where deleted=0
         order by create_time desc
