@@ -18,4 +18,11 @@ public interface UserMapper extends BaseMapper<UserPO> {
     UserVO getUserByUserId(Integer userId);
 
     IPage<UserVO> selectUsersByPage(Page page);
+
+    /**
+     * 软删除用户
+     * @param userId
+     * @return
+     */
+    Integer softDelUser(Integer userId);
 }

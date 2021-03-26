@@ -85,6 +85,8 @@ public class UserServiceImpl implements UserService {
          * todo 用户信息完整性验证：phone
          */
         assertUserExists(userPO.getId());
+        //只能修改特定信息
+        userPO = UserPO.forUpdatePersonalInfo(userPO);
         userMapper.updateById(userPO);
         return true;
     }
@@ -121,8 +123,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean delUser(Integer userId) {
         assertUserExists(userId);
-        userMapper.deleteById(userId);
-        return true;
+        Integer i = userMapper.softDelUser(userId);
+        return i == 1;
     }
 
     @Override

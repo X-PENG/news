@@ -41,4 +41,8 @@
         where deleted=0
         order by create_time desc
     </select>
+
+    <update id="softDelUser">
+        update user set deleted=true where id=#{userId}
+    </update>
 </mapper>

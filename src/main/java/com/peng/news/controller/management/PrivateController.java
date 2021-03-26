@@ -51,7 +51,6 @@ public class PrivateController {
      */
     @PutMapping("/")
     public Result updatePersonalInfo(UserPO userPO){
-        userPO = UserPO.forUpdatePersonalInfo(userPO);
         userService.updatePersonalInfo(userPO);
         return Result.success("修改成功！");
     }

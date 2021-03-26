@@ -29,7 +29,7 @@
         where t1.resource_id=#{resourceId}
     </select>
 
-    <select id="selectRolesByPage" resultMap="BaseResultMap">
+    <select id="selectRolesByPage" resultMap="ResultMapWithResourceIdList">
         select *
         from role
         order by create_time
