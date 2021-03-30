@@ -1,5 +1,6 @@
 package com.peng.news.model.vo;
 
+import com.peng.news.model.bean.RouteMeta;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -59,6 +60,11 @@ public class ResourceVO {
      * 配置资源和角色的一对多关系
      */
     List<RoleVO> roles;
+
+    /**
+     * 路由的meta信息
+     */
+    RouteMeta meta;
 
     /**
      * 子菜单

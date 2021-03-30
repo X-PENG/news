@@ -16,6 +16,12 @@
         <result property="description" column="description"/>
     </resultMap>
 
+    <resultMap id="ResultMapWithMeta" type="ResourceVO" extends="BaseResultMap">
+        <association property="meta" javaType="RouteMeta">
+            <result property="subMenu" column="sub_menu"/>
+        </association>
+    </resultMap>
+
     <resultMap id="ResultMapWithChildren" type="ResourceVO" extends="BaseResultMap">
         <collection property="children" ofType="ResourceVO" column="id" select="getAllMenuByParentId"/>
     </resultMap>
@@ -69,7 +75,7 @@
         where p1.user_id=#{userId} and t1.enabled=1 and (t2.enabled=1 or t2.enabled is null) and (t3.enabled=1 or t3.enabled is null)
     </select>
 
-    <select id="getMenusByUserId2" resultMap="BaseResultMap">
+    <select id="getMenusByUserId2" resultMap="ResultMapWithMeta">
         SELECT DISTINCT t3.*
         from user_role t1 join role_resource t2 on t1.role_id=t2.role_id join resource t3 on t2.resource_id=t3.id
         where t1.user_id=#{userId} and t3.enabled=1

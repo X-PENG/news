@@ -65,6 +65,11 @@ public class UserServiceImpl implements UserService {
         return resourceMapper.getMenusByUserId(getUserId(userId));
     }
 
+    /**
+     * 经测试，该方法更快
+     * @param userId
+     * @return
+     */
     @Override
     public List<ResourceVO> getMenusOfCurUser2(Integer userId) {
         List<ResourceVO> menus = resourceMapper.getMenusByUserId2(getUserId(userId));

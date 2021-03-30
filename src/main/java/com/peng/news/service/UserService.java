@@ -15,14 +15,14 @@ import java.util.List;
  */
 public interface UserService extends UserDetailsService {
     /**
-     * 得到当前用户的菜单列表
+     * 得到当前用户的菜单列表(利用数据库的连接查询形成了父子关系的菜单列表)
      * @param userId
      * @return
      */
     List<ResourceVO> getMenusOfCurUser(Integer userId);
 
     /**
-     * 得到当前用户的菜单列表（方法2）
+     * 得到当前用户的菜单列表（方法2，尚未形成父子关系的菜单列表）
      * 用户-->角色-->菜单
      * @param userId
      * @return
