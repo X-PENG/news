@@ -38,7 +38,7 @@ public interface UserService extends UserDetailsService {
 
     boolean updatePersonalInfo(UserPO userPO);
 
-    boolean updatePersonalPassword(Integer userId, String password);
+    boolean updatePersonalPassword(String password);
 
     boolean addUser(UserPO userPO);
 

@@ -89,15 +89,20 @@ public class UserServiceImpl implements UserService {
         /**
          * todo 用户信息完整性验证：phone
          */
-        assertUserExists(userPO.getId());
-        //只能修改特定信息
+        //得到当前登录用户的id，防止修改别人的信息
+        Integer userId = getUserId(null);
+        assertUserExists(userId);
+        userPO.setId(userId);
+        //只能修改特定信息，确保信息安全
         userPO = UserPO.forUpdatePersonalInfo(userPO);
         userMapper.updateById(userPO);
         return true;
     }
 
     @Override
-    public boolean updatePersonalPassword(Integer userId, String password) {
+    public boolean updatePersonalPassword(String password) {
+        //得到当前登录用户的id，确保修改自己的密码
+        Integer userId = getUserId(null);
         assertUserExists(userId);
         if(!StringUtils.isNotEmpty(password)){
             throw new RuntimeException("密码不能为空");

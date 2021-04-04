@@ -6,10 +6,7 @@ import com.peng.news.model.vo.ResourceVO;
 import com.peng.news.model.vo.UserVO;
 import com.peng.news.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -50,7 +47,7 @@ public class PrivateController {
      * @return
      */
     @PutMapping("/")
-    public Result updatePersonalInfo(UserPO userPO){
+    public Result updatePersonalInfo(@RequestBody UserPO userPO){
         userService.updatePersonalInfo(userPO);
         return Result.success("修改成功！");
     }
@@ -60,8 +57,8 @@ public class PrivateController {
      * @return
      */
     @PutMapping("/key")
-    public Result updatePersonalPassWord(UserPO userPO){
-        userService.updatePersonalPassword(userPO.getId(), userPO.getPasswd());
+    public Result updatePersonalPassWord(String newPassword){
+        userService.updatePersonalPassword(newPassword);
         return Result.success("修改成功！");
     }
 

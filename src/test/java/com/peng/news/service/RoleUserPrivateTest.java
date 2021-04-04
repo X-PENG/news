@@ -14,6 +14,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -169,6 +173,19 @@ public class RoleUserPrivateTest {
         userPOForUpdate.setLocked(!userPO1.getLocked());
         userPOForUpdate.setDeleted(!userPO1.getDeleted());
         //修改个人资料
+        SecurityContextHolder.setContext(new SecurityContext() {
+            @Override
+            public Authentication getAuthentication() {
+                UserVO principal = new UserVO();
+                principal.setId(userPOForUpdate.getId());
+                return new TestingAuthenticationToken(principal, "123");
+            }
+
+            @Override
+            public void setAuthentication(Authentication authentication) {
+
+            }
+        });
         userService.updatePersonalInfo(userPOForUpdate);
         UserPO userPO2 = userMapper.selectById(userPOForUpdate.getId());
         Assert.assertEquals(userPO2.getUsername(), userPO1.getUsername());
