@@ -30,6 +30,8 @@ public class RoleVO {
      */
     String description;
 
+    Boolean isSystemAdmin;
+
     Timestamp createTime;
 
     Timestamp updateTime;

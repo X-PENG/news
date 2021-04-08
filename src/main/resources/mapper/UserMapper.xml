@@ -45,10 +45,41 @@
         <include refid="columnsWithoutPasswd"/>
         from user
         where deleted=0
+        <if test="userIdList != null and userIdList.size() != 0">
+            and id in
+            <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test="conditionBean.username != null">
+            and username like CONCAT('%', #{conditionBean.username}, '%')
+        </if>
+        <if test="conditionBean.realName != null">
+            and real_name like CONCAT('%', #{conditionBean.realName}, '%')
+        </if>
+        <if test="conditionBean.gender != null">
+            and gender = #{conditionBean.gender}
+        </if>
+        <if test="conditionBean.phone != null">
+            and phone like CONCAT('%', #{conditionBean.phone}, '%')
+        </if>
+        <if test="conditionBean.email != null">
+            and email like CONCAT('%', #{conditionBean.email}, '%')
+        </if>
+        <if test="conditionBean.locked != null">
+            and locked = #{conditionBean.locked}
+        </if>
         order by create_time desc
     </select>
 
     <update id="softDelUser">
         update user set deleted=true where id=#{userId}
     </update>
+
+    <select id="getAdminIdSet" resultType="integer">
+        SELECT DISTINCT user_id
+        FROM user_role t1 join role t2 on t1.role_id=t2.id
+        where t2.is_system_admin = true
+    </select>
+
 </mapper>

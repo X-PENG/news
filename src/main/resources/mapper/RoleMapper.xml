@@ -11,10 +11,7 @@
         <result property="description" column="description"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
-    </resultMap>
-
-    <resultMap id="ResultMapWithResourceIdList" type="RoleVO" extends="BaseResultMap">
-        <collection property="resourceIdList" ofType="integer" column="id" select="com.peng.news.mapper.RoleResourceMapper.getAllResourceIdByRoleId"/>
+        <result property="isSystemAdmin" column="is_system_admin"/>
     </resultMap>
 
     <select id="getRolesByUserId" resultType="roleVO">
@@ -29,7 +26,13 @@
         where t1.resource_id=#{resourceId}
     </select>
 
-    <select id="selectRolesByPage" resultMap="ResultMapWithResourceIdList">
+    <select id="selectRolesByPage" resultMap="BaseResultMap">
+        select *
+        from role
+        order by create_time
+    </select>
+
+    <select id="getAllRoles" resultMap="BaseResultMap">
         select *
         from role
         order by create_time

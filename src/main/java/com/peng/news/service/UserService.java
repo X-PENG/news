@@ -2,6 +2,7 @@ package com.peng.news.service;
 
 import com.peng.news.model.CustomizedPage;
 import com.peng.news.model.po.UserPO;
+import com.peng.news.model.queryBean.QueryUserBean;
 import com.peng.news.model.vo.ResourceVO;
 import com.peng.news.model.vo.UserVO;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -46,7 +47,10 @@ public interface UserService extends UserDetailsService {
 
     boolean setUserLocked(Integer userId, boolean locked);
 
+    List<Integer> getRolesOfUser(Integer userId);
+
+
     boolean setRolesForUser(Integer userId, Integer[] roleIds);
 
-    CustomizedPage<UserVO> userList(int page, int pageSize);
+    CustomizedPage<UserVO> userList(int page, int pageSize, QueryUserBean queryUserBean);
 }

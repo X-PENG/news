@@ -16,7 +16,6 @@ public interface ResourceMapper extends BaseMapper<ResourcePO> {
     /**
      *
      * todo 思考是一次连接查询好还是多次嵌套查询好
-     * @param parentId  为null，就是查询一级菜单
      * @return
      */
     List<ResourceVO> getAllMenuByParentId(Integer parentId);
@@ -29,7 +28,7 @@ public interface ResourceMapper extends BaseMapper<ResourcePO> {
     List<ResourceVO> getAllResourceWithRoles();
 
     /**
-     * 根据userId返回菜单列表（父菜单会包含子菜单）
+     * 根据userId返回菜单列表（已经形成了父子关系）
      * @param userId
      * @return
      */

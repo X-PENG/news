@@ -28,4 +28,10 @@ public class ResourceServiceImpl implements ResourceService {
     public List<ResourceVO> getAllResourceWithRoles() {
         return resourceMapper.getAllResourceWithRoles();
     }
+
+    @Override
+    public List<ResourceVO> getOneLevelMenuWithChildren() {
+        //一级菜单的parent_id为null
+        return resourceMapper.getAllMenuByParentId(null);
+    }
 }

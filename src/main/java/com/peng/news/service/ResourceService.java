@@ -11,4 +11,10 @@ import java.util.List;
  */
 public interface ResourceService {
     List<ResourceVO> getAllResourceWithRoles();
+
+    /**
+     * 查询所有一级菜单，并且带有children
+     * @return
+     */
+    List<ResourceVO> getOneLevelMenuWithChildren();
 }

@@ -41,6 +41,9 @@ public class RoleServiceImpl implements RoleService {
         /**
          * todo 角色信息完整性验证：nameEn、nameZh
          */
+        if(!rolePO.getNameEn().startsWith(RolePO.ROLE_PREFIX)){
+            rolePO.setNameEn(RolePO.ROLE_PREFIX + rolePO.getNameEn());
+        }
         assertNameNotExists(rolePO.getNameEn(), rolePO.getNameZh());
         rolePO.setId(null);
         rolePO.setCreateTime(null);
@@ -49,40 +52,66 @@ public class RoleServiceImpl implements RoleService {
         return true;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean delRole(Integer roleId) {
-        assertRoleExists(roleId);
+        RolePO rolePO = assertRoleExists(roleId);
+        if(rolePO.getIsSystemAdmin()){
+            throw new RuntimeException("不允许删除系统管理员角色");
+        }
         roleMapper.deleteById(roleId);
+        //删除该角色分配的所有资源
+        roleResourceMapper.delete(new QueryWrapper<RoleResourcePO>().eq("role_id", roleId));
         return true;
     }
 
     @Override
-    public CustomizedPage<RoleVO> roleList(int page, int pageSize) {
-        page = page < 0 ? 1 : page;
+    public List<RoleVO> getAllRoles() {
+        return roleMapper.getAllRoles();
+    }
+
+    @Override
+    public CustomizedPage<RoleVO> roleList(Integer page, Integer pageSize) {
+        page = page == null ? 1 : page < 0 ? 1 : page;
+        pageSize = pageSize ==null ? Integer.MAX_VALUE : pageSize < 0 ? 0 : pageSize;
         return CustomizedPage.fromIPage(roleMapper.selectRolesByPage(new Page(page, pageSize)));
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean setResourcesForRole(Integer roleId, Integer[] resourceIds) {
-        assertRoleExists(roleId);
-        //确定设置的资源都存在
-        QueryWrapper<ResourcePO> wrapper = new QueryWrapper<>();
-        wrapper.in("id", Arrays.asList(resourceIds));
-        Integer count = resourceMapper.selectCount(wrapper);
-        //去重
-        Set<Integer> resourceIdSet = Arrays.stream(resourceIds).collect(Collectors.toSet());
-        if(count != null && count == resourceIdSet.size()){
-            //先删除role_resource表中的记录
-            roleResourceMapper.delete(new QueryWrapper<RoleResourcePO>().eq("role_id", roleId));
-            //再插入
-            for (Integer resourceId : resourceIdSet) {
-                roleResourceMapper.insert(new RoleResourcePO(roleId, resourceId));
+        RolePO rolePO = assertRoleExists(roleId);
+        if(rolePO.getIsSystemAdmin()){
+            throw new RuntimeException("不允许修改系统管理员角色的资源");
+        }
+        if(resourceIds.length != 0){
+            //确定设置的资源都存在且都开启了
+            QueryWrapper<ResourcePO> wrapper = new QueryWrapper<>();
+            wrapper.in("id", Arrays.asList(resourceIds)).eq("enabled", true);
+            Integer count = resourceMapper.selectCount(wrapper);
+            //去重
+            Set<Integer> resourceIdSet = Arrays.stream(resourceIds).collect(Collectors.toSet());
+            if(count != null && count == resourceIdSet.size()){
+                //先删除role_resource表中的记录
+                roleResourceMapper.delete(new QueryWrapper<RoleResourcePO>().eq("role_id", roleId));
+                //再插入
+                for (Integer resourceId : resourceIdSet) {
+                    roleResourceMapper.insert(new RoleResourcePO(roleId, resourceId));
+                }
+                return true;
             }
+        }else {
+            //删除该角色分配的所有资源
+            roleResourceMapper.delete(new QueryWrapper<RoleResourcePO>().eq("role_id", roleId));
             return true;
         }
 
         throw new RuntimeException("设置了一个不存在的资源，操作失败！");
+    }
+
+    @Override
+    public List<Integer> getAllNotSubMenuResourceByRoleId(Integer roleId) {
+        return roleResourceMapper.getAllNotSubMenuResourceByRoleId(roleId);
     }
 
     /**

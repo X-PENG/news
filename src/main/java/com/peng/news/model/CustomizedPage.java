@@ -3,6 +3,7 @@ package com.peng.news.model;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,10 +13,13 @@ import java.util.List;
  */
 @Data
 public class CustomizedPage<T> {
-    List<T> records;
+    List<T> records = new ArrayList<>();
     long total;
     long current;
     long size;
+
+    public CustomizedPage() {
+    }
 
     public static <T> CustomizedPage<T> fromIPage(IPage<T> page){
         CustomizedPage<T> customizedPage = new CustomizedPage<>();

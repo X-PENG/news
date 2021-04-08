@@ -1,9 +1,12 @@
 package com.peng.news.service.imp;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.peng.news.mapper.ResourceMapper;
+import com.peng.news.mapper.RoleResourceMapper;
 import com.peng.news.mapper.SystemConfigMapper;
 import com.peng.news.model.po.ResourcePO;
+import com.peng.news.model.po.RoleResourcePO;
 import com.peng.news.model.po.SystemConfigPO;
 import com.peng.news.service.SystemConfigService;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +47,9 @@ public class SystemConfigServiceImpl implements SystemConfigService {
 
     @Autowired
     ResourceMapper resourceMapper;
+
+    @Autowired
+    RoleResourceMapper roleResourceMapper;
 
     /**
      * 本地缓存系统配置的review_level
@@ -86,6 +92,11 @@ public class SystemConfigServiceImpl implements SystemConfigService {
                     UpdateWrapper<ResourcePO> updateWrapper = new UpdateWrapper<>();
                     updateWrapper.set("enabled", status).eq("url", s);
                     resourceMapper.update(null, updateWrapper);
+                }
+                if(!status){
+                    List<Object> resourceIdList = resourceMapper.selectObjs(new QueryWrapper<ResourcePO>().select("id").eq("url", resourcesToBeChanged));
+                    //删除这些资源的分配记录
+                    roleResourceMapper.delete(new QueryWrapper<RoleResourcePO>().in("resource_id", resourceIdList));
                 }
             }
 

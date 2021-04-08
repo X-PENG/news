@@ -11,6 +11,7 @@ import com.peng.news.model.CustomizedPage;
 import com.peng.news.model.po.RolePO;
 import com.peng.news.model.po.UserPO;
 import com.peng.news.model.po.UserRolePO;
+import com.peng.news.model.queryBean.QueryUserBean;
 import com.peng.news.model.vo.ResourceVO;
 import com.peng.news.model.vo.UserVO;
 import com.peng.news.service.UserService;
@@ -133,6 +134,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean delUser(Integer userId) {
         assertUserExists(userId);
+        if (isAdmin(userId)) {
+            throw new RuntimeException("不允许删除系统管理员用户");
+        }
         Integer i = userMapper.softDelUser(userId);
         return i == 1;
     }
@@ -143,39 +147,71 @@ public class UserServiceImpl implements UserService {
         if(user.getLocked() == locked){
             throw new RuntimeException("当前用户已经是" + (locked ? "锁定" : "未锁定") + "状态，操作失败！");
         }
+        if(isAdmin(userId)){
+            throw new RuntimeException("不允许操作系统管理员");
+        }
         UpdateWrapper<UserPO> wrapper = new UpdateWrapper<>();
         wrapper.set("locked", locked).eq("id", userId);
         userMapper.update(null, wrapper);
         return true;
     }
 
+    @Override
+    public List<Integer> getRolesOfUser(Integer userId) {
+        assertUserExists(userId);
+        QueryWrapper<UserRolePO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("role_id").eq("user_id", userId);
+        return userRoleMapper.selectList(queryWrapper).stream().map(UserRolePO::getRoleId).collect(Collectors.toList());
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean setRolesForUser(Integer userId, Integer[] roleIds) {
         assertUserExists(userId);
-        //确定设置的角色都存在
-        QueryWrapper<RolePO> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("id", Arrays.asList(roleIds));
-        Integer count = roleMapper.selectCount(queryWrapper);
         //去重
-        Set<Integer> roleIdSet = Arrays.stream(roleIds).collect(Collectors.toSet());
-        if(count != null && count == roleIdSet.size()){
-            //先删除user_role表中的记录
-            userRoleMapper.delete(new QueryWrapper<UserRolePO>().eq("user_id", userId));
-            //再插入
-            for (Integer roleId : roleIdSet) {
-                userRoleMapper.insert(new UserRolePO(userId, roleId));
+        if(isAdmin(userId) || roleMapper.selectCount(new QueryWrapper<RolePO>().in("id", roleIds).eq("is_system_admin", true)) > 0 ){
+            throw new RuntimeException("不允许修改系统管理员的配置或设置为系统管理员！");
+        }
+
+        if(roleIds.length > 0){
+            Set<Integer> roleIdSet = Arrays.stream(roleIds).collect(Collectors.toSet());
+            QueryWrapper<RolePO> queryWrapper = new QueryWrapper<>();
+            queryWrapper.in("id", roleIdSet);
+            Integer count = roleMapper.selectCount(queryWrapper);
+            //确定设置的角色都存在
+            if(count == roleIdSet.size()){
+                //先删除user_role表中的记录
+                userRoleMapper.delete(new QueryWrapper<UserRolePO>().eq("user_id", userId));
+                //再插入
+                for (Integer roleId : roleIdSet) {
+                    userRoleMapper.insert(new UserRolePO(userId, roleId));
+                }
+                return true;
             }
+        }else {
+            //删除user_role表中的记录
+            userRoleMapper.delete(new QueryWrapper<UserRolePO>().eq("user_id", userId));
             return true;
         }
 
-        throw new RuntimeException("设置了一个不存在的角色，操作失败！");
+        throw new RuntimeException("待分配的角色中包含不存在的角色，操作失败！");
     }
 
     @Override
-    public CustomizedPage<UserVO> userList(int page, int pageSize) {
+    public CustomizedPage<UserVO> userList(int page, int pageSize, QueryUserBean queryUserBean) {
         page = page < 0 ? 1 : page;
-        return CustomizedPage.fromIPage(userMapper.selectUsersByPage(new Page(page, pageSize)));
+        List<Object> userIdList = null;
+        if(queryUserBean.getRoleId() != null){
+            userIdList = userRoleMapper.selectObjs(new QueryWrapper<UserRolePO>().select("user_id").eq("role_id", queryUserBean.getRoleId()));
+            if(userIdList == null || userIdList.size() == 0){
+                //没有符合条件的用户
+                CustomizedPage<UserVO> emptyPage = new CustomizedPage<>();
+                emptyPage.setCurrent(page);
+                emptyPage.setSize(pageSize);
+                return emptyPage;
+            }
+        }
+        return CustomizedPage.fromIPage(userMapper.selectUsersByPage(new Page(page, pageSize), queryUserBean, userIdList));
     }
 
     Integer getUserId(Integer userId){
@@ -235,5 +271,19 @@ public class UserServiceImpl implements UserService {
         if(i != null && i > 0){
             throw new RuntimeException("用户名已存在，操作失败！");
         }
+    }
+
+    private boolean isAdmin(Integer userId) {
+        Set<Integer> adminIdSet = getAdminIdSet();
+        return adminIdSet.contains(userId);
+    }
+
+    /**
+     * todo 加缓存
+     * 返回管理员id集合
+     * @return
+     */
+    Set<Integer> getAdminIdSet(){
+        return userMapper.getAdminIdSet();
     }
 }

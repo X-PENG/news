@@ -6,6 +6,7 @@ import com.peng.news.mapper.UserMapper;
 import com.peng.news.model.CustomizedPage;
 import com.peng.news.model.po.RolePO;
 import com.peng.news.model.po.UserPO;
+import com.peng.news.model.queryBean.QueryUserBean;
 import com.peng.news.model.vo.ResourceVO;
 import com.peng.news.model.vo.RoleVO;
 import com.peng.news.model.vo.UserVO;
@@ -122,7 +123,7 @@ public class RoleUserPrivateTest {
         Assert.assertEquals(roleOfUser.getNameZh(), nameZh);
         Assert.assertEquals(roleOfUser.getDescription(), desc);
         //分页查询用户
-        CustomizedPage<UserVO> userPage = userService.userList(1, 10000);
+        CustomizedPage<UserVO> userPage = userService.userList(1, 10000, new QueryUserBean());
         UserVO userVO1 = userPage.getRecords().get(0);
         Assert.assertEquals(userVO1.getRealName(), realName);
         Assert.assertEquals(userVO1.getPhone(), phone);

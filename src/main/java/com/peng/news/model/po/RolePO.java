@@ -16,6 +16,8 @@ import java.sql.Timestamp;
 @Data
 public class RolePO {
 
+    public static final String ROLE_PREFIX = "ROLE_";
+
     @TableId(type = IdType.AUTO)
     Integer id;
 
@@ -33,6 +35,8 @@ public class RolePO {
      * 角色描述
      */
     String description;
+
+    Boolean isSystemAdmin;
 
     Timestamp createTime;
 

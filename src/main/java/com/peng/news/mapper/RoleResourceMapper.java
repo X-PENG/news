@@ -12,5 +12,10 @@ import java.util.List;
  */
 public interface RoleResourceMapper extends BaseMapper<RoleResourcePO> {
 
-    List<Integer> getAllResourceIdByRoleId(Integer roleId);
+    /**
+     * 查询一个角色所有不是子菜单的资源的id列表
+     * @param roleId
+     * @return
+     */
+    List<Integer> getAllNotSubMenuResourceByRoleId(Integer roleId);
 }

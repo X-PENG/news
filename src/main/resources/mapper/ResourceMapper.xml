@@ -52,7 +52,7 @@
     </resultMap>
 
     <select id="getAllMenuByParentId" resultMap="ResultMapWithChildren">
-        select * from resource
+        select id,`name` from resource
         where enabled = true
         <choose>
             <when test="parentId == null">

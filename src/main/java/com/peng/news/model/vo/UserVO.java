@@ -1,5 +1,6 @@
 package com.peng.news.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -42,6 +43,7 @@ public class UserVO implements UserDetails {
 
     Boolean deleted;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     Timestamp createTime;
 
     Timestamp updateTime;

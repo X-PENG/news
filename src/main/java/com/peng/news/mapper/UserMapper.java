@@ -4,7 +4,12 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.peng.news.model.po.UserPO;
+import com.peng.news.model.queryBean.QueryUserBean;
 import com.peng.news.model.vo.UserVO;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author PENG
@@ -17,7 +22,7 @@ public interface UserMapper extends BaseMapper<UserPO> {
 
     UserVO getUserByUserId(Integer userId);
 
-    IPage<UserVO> selectUsersByPage(Page page);
+    IPage<UserVO> selectUsersByPage(Page page, @Param("conditionBean") QueryUserBean queryUserBean, @Param("userIdList") List<Object> userIdList);
 
     /**
      * 软删除用户
@@ -25,4 +30,10 @@ public interface UserMapper extends BaseMapper<UserPO> {
      * @return
      */
     Integer softDelUser(Integer userId);
+
+    /**
+     * 查询所有具有系统管理员角色的用户id列表
+     * @return
+     */
+    Set<Integer> getAdminIdSet();
 }

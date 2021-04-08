@@ -4,9 +4,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.peng.news.mapper.RoleResourceMapper">
 
-    <select id="getAllResourceIdByRoleId" resultType="integer">
+    <select id="getAllNotSubMenuResourceByRoleId" resultType="integer">
         select resource_id
-        from role_resource
-        where role_id=#{roleId}
+        from role_resource t1 join resource t2 on t1.resource_id = t2.id
+        where role_id=#{roleId} and sub_menu=0
     </select>
 </mapper>

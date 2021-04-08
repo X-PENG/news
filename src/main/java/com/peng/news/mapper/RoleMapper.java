@@ -18,4 +18,6 @@ public interface RoleMapper extends BaseMapper<RolePO> {
     List<RoleVO> getRolesByResourceId(Integer resourceId);
 
     IPage<RoleVO> selectRolesByPage(Page page);
+
+    List<RoleVO> getAllRoles();
 }
