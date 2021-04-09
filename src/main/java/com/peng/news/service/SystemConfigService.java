@@ -1,6 +1,6 @@
 package com.peng.news.service;
 
-import com.peng.news.model.po.SystemConfigPO;
+import com.peng.news.model.vo.SystemConfigVO;
 
 /**
  * @author PENG
@@ -10,7 +10,7 @@ import com.peng.news.model.po.SystemConfigPO;
 public interface SystemConfigService {
     boolean setReviewLevel(int reviewLevel);
 
-    SystemConfigPO loadCurSystemConfig();
+    SystemConfigVO loadCurSystemConfig();
 
     /**
      * 得到当前系统配置的review_level

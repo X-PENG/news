@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
- * 拦截审核相关的请求（1/2/3/4审等等），如果审核等级大于系统配置，则报404错误
+ * 拦截审核相关的请求（/management/news/review/**，比如，一审、二审、三审等等），如果审核等级大于系统配置，则报404错误
  * @author PENG
  * @version 1.0
  * @date 2021/3/26 10:13
@@ -26,6 +26,7 @@ public class ReviewInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
+        //得到url路径参数
         Map map = (Map) req.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         boolean tag404 = false;
         if(map == null){

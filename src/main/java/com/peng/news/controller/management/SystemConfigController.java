@@ -1,6 +1,7 @@
 package com.peng.news.controller.management;
 
 import com.peng.news.model.Result;
+import com.peng.news.model.vo.SystemConfigVO;
 import com.peng.news.service.SystemConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,5 +34,14 @@ public class SystemConfigController {
     public Result setReviewLevel(int reviewLevel){
         systemConfigService.setReviewLevel(reviewLevel);
         return Result.success("设置成功！");
+    }
+
+    /**
+     * 查询当前系统配置
+     * @return
+     */
+    @GetMapping("/")
+    public Result<SystemConfigVO> getCurSystemConfig(){
+        return Result.success(systemConfigService.loadCurSystemConfig());
     }
 }

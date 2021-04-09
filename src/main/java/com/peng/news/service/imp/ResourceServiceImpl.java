@@ -22,6 +22,7 @@ public class ResourceServiceImpl implements ResourceService {
 
     /**
      * todo 做缓存
+     * 查询所有资源（包括不开启的资源），并且包含资源对应的角色列表
      * @return
      */
     @Override
