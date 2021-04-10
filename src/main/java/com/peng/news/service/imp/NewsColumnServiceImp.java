@@ -63,9 +63,10 @@ public class NewsColumnServiceImp implements NewsColumnService {
         return newsColumnPO.getId();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean delNewsColumn(Integer newsColId) {
-        assertNewsColExists(newsColId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
+        NewsColumnPO newsColumnPO = assertNewsColExists(newsColId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
 
         if(hasChildren(newsColId) > 0){
             throw new RuntimeException("当前栏目包含子栏目，不允许删除，操作失败！");
@@ -73,6 +74,11 @@ public class NewsColumnServiceImp implements NewsColumnService {
 
         if(hasNews(newsColId)){
             throw new RuntimeException("当前栏目下已经发布了新闻，不允许删除，操作失败！");
+        }
+
+        //如果有父栏目，则取消设置
+        if(newsColumnPO.getParentId() != null){
+            operateParentNewsCol(newsColumnPO.getParentId(), true);
         }
 
         newsColumnMapper.deleteById(newsColId);
@@ -86,6 +92,11 @@ public class NewsColumnServiceImp implements NewsColumnService {
         validateInfo(newsColumnPO);
 
         NewsColumnPO queryResult = assertNewsColExists(newsColumnPO.getId(), NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
+
+        if(newsColumnPO.getId().equals(newsColumnPO.getParentId())){
+            throw new RuntimeException("自己不能作为自己的父栏目，操作失败！");
+        }
+
         UpdateWrapper<NewsColumnPO> updateWrapper = new UpdateWrapper<NewsColumnPO>().eq("id", newsColumnPO.getId());
         //保证title不重复
         assertTitleNotExists(newsColumnPO.getTitle(), newsColumnPO.getId());
