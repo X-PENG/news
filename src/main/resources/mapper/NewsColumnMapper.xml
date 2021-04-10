@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.peng.news.mapper.NewsColumnMapper">
+
+    <resultMap id="BaseResultMap" type="NewsColumnVO">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="menuOrder" column="menu_order"/>
+        <result property="moduleOrder" column="module_order"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="enabled" column="enabled"/>
+        <result property="externalLink" column="external_link"/>
+        <result property="isHasChildren" column="is_has_children"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+</mapper>
