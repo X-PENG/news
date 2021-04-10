@@ -56,4 +56,14 @@ public class ResourcePO {
      * 资源描述
      */
     String description;
+
+    /**
+     * 是否是子菜单
+     */
+    Boolean subMenu;
+
+    /**
+     * 是否隐藏，不作为侧边栏菜单
+     */
+    Boolean hidden;
 }

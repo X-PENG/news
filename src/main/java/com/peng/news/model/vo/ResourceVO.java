@@ -67,6 +67,11 @@ public class ResourceVO {
     RouteMeta meta;
 
     /**
+     * 是否隐藏，不作为侧边栏菜单
+     */
+    Boolean hidden;
+
+    /**
      * 子菜单
      */
     List<ResourceVO> children;

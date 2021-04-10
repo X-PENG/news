@@ -14,6 +14,7 @@
         <result property="parentId" column="parent_id"/>
         <result property="enabled" column="enabled"/>
         <result property="description" column="description"/>
+        <result property="hidden" column="hidden"/>
     </resultMap>
 
     <resultMap id="ResultMapWithMeta" type="ResourceVO" extends="BaseResultMap">

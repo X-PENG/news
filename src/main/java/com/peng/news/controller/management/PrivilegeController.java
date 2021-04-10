@@ -34,7 +34,7 @@ public class PrivilegeController {
     }
 
     /**
-     * 分页查询角色列表，查询的角色包含可访问的资源id列表
+     * 分页查询角色列表
      * @param page
      * @param pageSize
      * @return
