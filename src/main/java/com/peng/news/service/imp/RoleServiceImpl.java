@@ -41,6 +41,8 @@ public class RoleServiceImpl implements RoleService {
         /**
          * todo 角色信息完整性验证：nameEn、nameZh
          */
+        rolePO.setNameEn(rolePO.getNameEn().trim());
+        rolePO.setNameZh(rolePO.getNameZh().trim());
         if(!rolePO.getNameEn().startsWith(RolePO.ROLE_PREFIX)){
             rolePO.setNameEn(RolePO.ROLE_PREFIX + rolePO.getNameEn());
         }
