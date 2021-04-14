@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.peng.news.model.po.UserPO;
-import com.peng.news.model.queryBean.QueryUserBean;
+import com.peng.news.model.paramBean.QueryUserBean;
 import com.peng.news.model.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 

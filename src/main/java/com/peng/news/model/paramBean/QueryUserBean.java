@@ -1,8 +1,9 @@
-package com.peng.news.model.queryBean;
+package com.peng.news.model.paramBean;
 
 import lombok.Data;
 
 /**
+ * 封装查询用户的条件参数
  * @author PENG
  * @version 1.0
  * @date 2021/4/7 16:44

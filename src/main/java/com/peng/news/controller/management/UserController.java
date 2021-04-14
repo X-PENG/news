@@ -3,7 +3,7 @@ package com.peng.news.controller.management;
 import com.peng.news.model.CustomizedPage;
 import com.peng.news.model.Result;
 import com.peng.news.model.po.UserPO;
-import com.peng.news.model.queryBean.QueryUserBean;
+import com.peng.news.model.paramBean.QueryUserBean;
 import com.peng.news.model.vo.RoleVO;
 import com.peng.news.model.vo.UserVO;
 import com.peng.news.service.RoleService;
@@ -42,7 +42,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/")
-    public Result<CustomizedPage<UserVO>> userList(int page, int pageSize, QueryUserBean queryUserBean){
+    public Result<CustomizedPage<UserVO>> userList(Integer page, Integer pageSize, QueryUserBean queryUserBean){
         return Result.success(userService.userList(page, pageSize, queryUserBean));
     }
 

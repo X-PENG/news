@@ -1,8 +1,10 @@
 package com.peng.news.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.peng.news.model.queryBean.QueryUserBean;
+import com.peng.news.model.paramBean.QueryUserBean;
+import com.peng.news.model.po.UserPO;
 import com.peng.news.model.vo.UserVO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,14 +29,16 @@ public class UserMapperTest {
     @Test
     public void getUserByUsername(){
         UserVO user1 = userMapper.getUserByUsername("PENG");
+        Assert.assertEquals(user1.getUsername(), "PENG");
         System.out.println(user1);
         UserVO user2 = userMapper.getUserByUsername("20210323");
+        Assert.assertEquals(user2.getUsername(), "20210323");
         System.out.println(user2);
     }
 
     @Test
     public void selectUsersByPage(){
-        Integer count = userMapper.selectCount(null);
+        Integer count = userMapper.selectCount(new QueryWrapper<UserPO>().eq("deleted", 0));
         int size = 2;
         int totalPage = (count + size - 1) / size;
         int curPage;

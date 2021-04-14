@@ -11,7 +11,7 @@ import com.peng.news.model.CustomizedPage;
 import com.peng.news.model.po.RolePO;
 import com.peng.news.model.po.UserPO;
 import com.peng.news.model.po.UserRolePO;
-import com.peng.news.model.queryBean.QueryUserBean;
+import com.peng.news.model.paramBean.QueryUserBean;
 import com.peng.news.model.vo.ResourceVO;
 import com.peng.news.model.vo.UserVO;
 import com.peng.news.service.UserService;
@@ -198,8 +198,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CustomizedPage<UserVO> userList(int page, int pageSize, QueryUserBean queryUserBean) {
-        page = page < 0 ? 1 : page;
+    public CustomizedPage<UserVO> userList(Integer page, Integer pageSize, QueryUserBean queryUserBean) {
+        page = page == null || page <= 0 ? 1 : page;
+        pageSize = pageSize == null || pageSize < 0 ? 0 : pageSize;
         List<Object> userIdList = null;
         if(queryUserBean.getRoleId() != null){
             userIdList = userRoleMapper.selectObjs(new QueryWrapper<UserRolePO>().select("user_id").eq("role_id", queryUserBean.getRoleId()));

@@ -3,7 +3,7 @@ package com.peng.news.service;
 import com.peng.news.model.CustomizedPage;
 import com.peng.news.model.po.RolePO;
 import com.peng.news.model.po.UserPO;
-import com.peng.news.model.queryBean.QueryUserBean;
+import com.peng.news.model.paramBean.QueryUserBean;
 import com.peng.news.model.vo.ResourceVO;
 import com.peng.news.model.vo.UserVO;
 import org.junit.Assert;
@@ -39,7 +39,7 @@ public class UserServiceTest {
     @Test
     public void getMenusOfUser2(){
         List<ResourceVO> menus = userService.getMenusOfCurUser2(1);
-        Assert.assertEquals(menus.size(), 5);
+        Assert.assertEquals(menus.size(), 6);
     }
 
     /**

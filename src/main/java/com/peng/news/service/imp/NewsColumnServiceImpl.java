@@ -18,7 +18,7 @@ import java.util.List;
  * @date 2021/4/9 12:43
  */
 @Service
-public class NewsColumnServiceImp implements NewsColumnService {
+public class NewsColumnServiceImpl implements NewsColumnService {
 
     static final String NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE = "当前栏目不存在，操作失败！";
 

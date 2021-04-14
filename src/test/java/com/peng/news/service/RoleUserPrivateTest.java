@@ -2,11 +2,13 @@ package com.peng.news.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.peng.news.mapper.RoleMapper;
+import com.peng.news.mapper.RoleResourceMapper;
 import com.peng.news.mapper.UserMapper;
 import com.peng.news.model.CustomizedPage;
+import com.peng.news.model.paramBean.QueryUserBean;
 import com.peng.news.model.po.RolePO;
+import com.peng.news.model.po.RoleResourcePO;
 import com.peng.news.model.po.UserPO;
-import com.peng.news.model.queryBean.QueryUserBean;
 import com.peng.news.model.vo.ResourceVO;
 import com.peng.news.model.vo.RoleVO;
 import com.peng.news.model.vo.UserVO;
@@ -25,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,6 +55,9 @@ public class RoleUserPrivateTest {
     @Autowired
     UserMapper userMapper;
 
+    @Autowired
+    RoleResourceMapper roleResourceMapper;
+
     /**
      * 添加角色-->设置资源-->添加用户-->设置角色--->查询用户菜单、查询个人资料、修改个人资料、锁定/解锁用户、软删除用户
      */
@@ -59,7 +65,7 @@ public class RoleUserPrivateTest {
     @Transactional
     @Test
     public void t1(){
-        String nameEn = "Role_test1";
+        String nameEn = "ROLE_test1";
         String nameZh = "测试角色1";
         String desc = "测试用例中的测试数据";
         RolePO rolePO = new RolePO();
@@ -80,6 +86,9 @@ public class RoleUserPrivateTest {
         Assert.assertEquals(selectLastRole.getNameEn(), nameEn);
         Assert.assertEquals(selectLastRole.getNameZh(), nameZh);
         Assert.assertEquals(selectLastRole.getDescription(), desc);
+        List<Object> selectObjs = roleResourceMapper.selectObjs(new QueryWrapper<RoleResourcePO>().select("resource_id").eq("role_id", selectLastRole.getId()));
+        Integer[] selectedResourceIds = selectObjs.toArray(new Integer[0]);
+        selectLastRole.setResourceIdList(Arrays.asList(selectedResourceIds));
         //测试查询出的资源id列表
         Assert.assertEquals(selectLastRole.getResourceIdList().size(), resourceIds.length);
         Collections.sort(selectLastRole.getResourceIdList());
