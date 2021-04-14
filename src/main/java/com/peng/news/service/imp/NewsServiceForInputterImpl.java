@@ -51,7 +51,6 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
         newsPO.setNewsStatus(NewsStatus.DRAFT.getCode());
         Integer curUserId = UserUtils.getUser().getId();
         newsPO.setInputterId(curUserId);
-        newsPO.setLatestEditorId(curUserId);
         newsPO.setLatestEditTime(new Timestamp(Instant.now().toEpochMilli()));
         newsMapper.insert(newsPO);
         return newsPO.getId();
@@ -64,8 +63,6 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
         BeanUtils.copyProperties(news, newsPO);
         newsPO.setNewsStatus(NewsStatus.UPLOAD_SUCCESS.getCode());
         newsPO.setInputterId(curUser.getId());
-        newsPO.setLatestEditorId(curUser.getId());
-        newsPO.setLatestEditTime(new Timestamp(Instant.now().toEpochMilli()));
         newsPO.setCompleteInputTime(new Timestamp(Instant.now().toEpochMilli()));
         //上传新闻时，要自动将当前用户的姓名填进去
         newsPO.setEditors(curUser.getRealName() + ",");
@@ -77,7 +74,6 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
     protected Integer saveAsDraft(NewsBeanForInputterSave news) {
         UpdateWrapper<NewsPO> updateWrapper = commonUpdateWrapperForSave(news);
         NewsPO newsPO = new NewsPO();
-        newsPO.setLatestEditorId(UserUtils.getUser().getId());
         newsPO.setLatestEditTime(new Timestamp(Instant.now().toEpochMilli()));
         newsMapper.update(newsPO, updateWrapper);
         return news.getId();
@@ -86,14 +82,12 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
     @Override
     protected Integer saveAsCompleted(NewsBeanForInputterSave news) {
         UpdateWrapper<NewsPO> updateWrapper = commonUpdateWrapperForSave(news);
-        //上传新闻时，要将最近修改设为null
+        //上传新闻时，要将最近修改时间设为null
         updateWrapper.set("latest_edit_time", null);
         NewsPO newsPO = new NewsPO();
         newsPO.setNewsStatus(NewsStatus.UPLOAD_SUCCESS.getCode());
         newsPO.setCompleteInputTime(new Timestamp(Instant.now().toEpochMilli()));
         UserVO curUser = UserUtils.getUser();
-        newsPO.setLatestEditorId(curUser.getId());
-        newsPO.setLatestEditTime(new Timestamp(Instant.now().toEpochMilli()));
         //上传新闻时，要自动将当前用户的姓名填进去
         newsPO.setEditors(curUser.getRealName() + ",");
         newsMapper.update(newsPO, updateWrapper);

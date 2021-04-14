@@ -6,7 +6,7 @@ import com.peng.news.model.paramBean.QueryNewsBeanForInputter;
 import com.peng.news.model.po.NewsPO;
 
 /**
- * 传稿人的新闻管理服务
+ * 传稿人的新闻管理服务。传稿人，即具有 撰写新闻 菜单权限的用户
  * @author PENG
  * @version 1.0
  * @date 2021/4/12 21:06
