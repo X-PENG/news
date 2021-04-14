@@ -15,9 +15,10 @@ public abstract class AbstractNewsServiceForInputter implements NewsServiceForIn
 
     @Override
     public Integer saveNewsAsDraftOrUpload(int tag, NewsBeanForInputterSave news) {
-        /**
-         * todo 信息完整性、合法性校验，并对数据进行格式化（修剪两边空格，空字符串就设为null）
-         */
+        //先对新闻信息进行格式化
+        news.trimOrSetNull();
+        //再对信息进行校验
+        validateNewsInfo(news);
         Integer newsId = news.getId();
 
         //新闻存在外链的话，其他信息都不保存，设为null
@@ -61,6 +62,33 @@ public abstract class AbstractNewsServiceForInputter implements NewsServiceForIn
         }
 
         return selectNews;
+    }
+
+    /**
+     * 对保存的新闻信息进行校验
+     * @param news
+     */
+    private void validateNewsInfo(NewsBeanForInputterSave news) {
+        validateNewsInfoIsComplete(news);
+        validateNewsInfoIsLegality(news);
+    }
+
+    /**
+     * 完整性校验
+     * @param news
+     */
+    private void validateNewsInfoIsComplete(NewsBeanForInputterSave news){
+        if(news.getTitle() == null) {
+            throw new RuntimeException("新闻标题不能为空！");
+        }
+    }
+
+    /**
+     * 合法性校验
+     * @param news
+     */
+    private void validateNewsInfoIsLegality(NewsBeanForInputterSave news){
+
     }
 
     /**

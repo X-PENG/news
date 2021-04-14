@@ -41,4 +41,26 @@ public class NewsBeanForInputterSave {
      * 新闻外链
      */
     String externalUrl;
+
+    /**
+     * 对字符串两边空格进行修剪，如果是空字符串，就设为null
+     * @return
+     */
+    public void trimOrSetNull(){
+        if(title == null || "".equals(title = title.trim())) {
+            title = null;
+        }
+
+        if(imgSource == null || "".equals(imgSource = imgSource.trim())) {
+            imgSource = null;
+        }
+
+        if(articleSource == null || "".equals(articleSource = articleSource.trim())) {
+            articleSource = null;
+        }
+
+        if(externalUrl == null || "".equals(externalUrl = externalUrl.trim())) {
+            externalUrl = null;
+        }
+    }
 }

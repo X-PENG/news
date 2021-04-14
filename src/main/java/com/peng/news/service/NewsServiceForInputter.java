@@ -13,7 +13,7 @@ import com.peng.news.model.po.NewsPO;
  */
 public interface NewsServiceForInputter {
     /**
-     * 传稿人创建新闻或保存修改：
+     * 传稿人保存新闻：要么创建，要么更新：
      * 1.当id为null就创建新闻，并根据tag设为草稿或上传成功状态；
      * 2.当id不为null就更新新闻，并根据tag设为草稿或上传成功状态。
      *      传稿人想更新新闻，必须满足：
