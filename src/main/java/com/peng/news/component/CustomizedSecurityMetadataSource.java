@@ -37,7 +37,7 @@ public class CustomizedSecurityMetadataSource implements FilterInvocationSecurit
     ResourceService resourceService;
 
     /**
-     * 根据请求的url，去匹配被权限管理的资源，返回对应的角色列表
+     * 根据请求的url，去匹配被权限管理的资源，返回权限资源对应的角色列表
      * @param object
      * @return
      * @throws IllegalArgumentException

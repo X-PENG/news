@@ -47,7 +47,7 @@ public class CustomizedAccessDecisionManager implements AccessDecisionManager {
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             for (GrantedAuthority authority : authorities) {
                 if(authority.getAuthority().equals(requireRole)){
-                    //用户具有其中一个角色，则认证通过
+                    //自定义规则：用户具有其中一个角色，则认证通过
                     return;
                 }
             }
