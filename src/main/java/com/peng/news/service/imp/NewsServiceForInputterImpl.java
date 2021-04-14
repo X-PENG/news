@@ -65,6 +65,7 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
         newsPO.setNewsStatus(NewsStatus.UPLOAD_SUCCESS.getCode());
         newsPO.setInputterId(curUser.getId());
         newsPO.setLatestEditorId(curUser.getId());
+        newsPO.setLatestEditTime(new Timestamp(Instant.now().toEpochMilli()));
         newsPO.setCompleteInputTime(new Timestamp(Instant.now().toEpochMilli()));
         //上传新闻时，要自动将当前用户的姓名填进去
         newsPO.setEditors(curUser.getRealName() + ",");
@@ -76,8 +77,8 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
     protected Integer saveAsDraft(NewsBeanForInputterSave news) {
         UpdateWrapper<NewsPO> updateWrapper = commonUpdateWrapperForSave(news);
         NewsPO newsPO = new NewsPO();
-        newsPO.setLatestEditTime(new Timestamp(Instant.now().toEpochMilli()));
         newsPO.setLatestEditorId(UserUtils.getUser().getId());
+        newsPO.setLatestEditTime(new Timestamp(Instant.now().toEpochMilli()));
         newsMapper.update(newsPO, updateWrapper);
         return news.getId();
     }
@@ -92,6 +93,7 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
         newsPO.setCompleteInputTime(new Timestamp(Instant.now().toEpochMilli()));
         UserVO curUser = UserUtils.getUser();
         newsPO.setLatestEditorId(curUser.getId());
+        newsPO.setLatestEditTime(new Timestamp(Instant.now().toEpochMilli()));
         //上传新闻时，要自动将当前用户的姓名填进去
         newsPO.setEditors(curUser.getRealName() + ",");
         newsMapper.update(newsPO, updateWrapper);
