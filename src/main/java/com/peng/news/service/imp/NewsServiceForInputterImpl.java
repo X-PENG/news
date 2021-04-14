@@ -11,6 +11,7 @@ import com.peng.news.model.paramBean.NewsBeanForInputterSave;
 import com.peng.news.model.paramBean.QueryNewsBeanForInputter;
 import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.UserVO;
+import com.peng.news.util.Constants;
 import com.peng.news.util.UserUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
         newsPO.setInputterId(curUser.getId());
         newsPO.setCompleteInputTime(new Timestamp(Instant.now().toEpochMilli()));
         //上传新闻时，要自动将当前用户的姓名填进去
-        newsPO.setEditors(curUser.getRealName() + ",");
+        newsPO.setEditors(curUser.getRealName() + Constants.EDITORS_SEPARATOR);
         newsMapper.insert(newsPO);
         return newsPO.getId();
     }
@@ -89,7 +90,7 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
         newsPO.setCompleteInputTime(new Timestamp(Instant.now().toEpochMilli()));
         UserVO curUser = UserUtils.getUser();
         //上传新闻时，要自动将当前用户的姓名填进去
-        newsPO.setEditors(curUser.getRealName() + ",");
+        newsPO.setEditors(curUser.getRealName() + Constants.EDITORS_SEPARATOR);
         newsMapper.update(newsPO, updateWrapper);
         return news.getId();
     }
