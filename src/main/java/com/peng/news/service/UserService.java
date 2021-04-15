@@ -53,4 +53,10 @@ public interface UserService extends UserDetailsService {
     boolean setRolesForUser(Integer userId, Integer[] roleIds);
 
     CustomizedPage<UserVO> userList(Integer page, Integer pageSize, QueryUserBean queryUserBean);
+
+    /**
+     * 查询用户下拉菜单数据
+     * @return
+     */
+    List<UserPO> userSelectData();
 }

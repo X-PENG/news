@@ -145,7 +145,7 @@ public class NewsPO {
     Integer realReadingCount;
 
     /**
-     * 额外信息
+     * 额外信息，以JSON字符串形式存储
      */
     String extra;
 }

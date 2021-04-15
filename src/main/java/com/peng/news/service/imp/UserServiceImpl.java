@@ -215,6 +215,13 @@ public class UserServiceImpl implements UserService {
         return CustomizedPage.fromIPage(userMapper.selectUsersByPage(new Page(page, pageSize), queryUserBean, userIdList));
     }
 
+    @Override
+    public List<UserPO> userSelectData() {
+        QueryWrapper<UserPO> wrapper = new QueryWrapper<>();
+        wrapper.select("id", "real_name").eq("deleted", 0);
+        return userMapper.selectList(wrapper);
+    }
+
     Integer getUserId(Integer userId){
         return userId != null ? userId : ((UserVO) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
     }

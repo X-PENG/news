@@ -7,6 +7,7 @@ import com.peng.news.model.po.UserPO;
 import com.peng.news.model.paramBean.QueryUserBean;
 import com.peng.news.model.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Set;
@@ -36,4 +37,12 @@ public interface UserMapper extends BaseMapper<UserPO> {
      * @return
      */
     Set<Integer> getAdminIdSet();
+
+    /**
+     * 根据id查询用户的名称，包括：用户名和实名
+     * @param userId
+     * @return
+     */
+    @Select("select username,real_name from user where id = #{userId}")
+    UserPO selectNameById(@Param("userId") Integer userId);
 }

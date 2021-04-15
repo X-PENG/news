@@ -1,5 +1,6 @@
 package com.peng.news.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.peng.news.model.enums.NewsStatus;
 import com.peng.news.model.po.NewsColumnPO;
 import com.peng.news.model.po.UserPO;
@@ -80,6 +81,7 @@ public class NewsVO {
     /**
      * 新闻完成录入的时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     Timestamp completeInputTime;
 
     /**
@@ -110,6 +112,7 @@ public class NewsVO {
     /**
      * 最近修改日期
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     Timestamp latestEditTime;
 
     /**
@@ -138,7 +141,7 @@ public class NewsVO {
     Integer realReadingCount;
 
     /**
-     * 额外信息
+     * 额外信息，以JSON字符串形式存储
      */
     String extra;
 }

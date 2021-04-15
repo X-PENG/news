@@ -3,7 +3,12 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+<!-- 为了解决开发时Mapper不能识别类型别名的问题而增加的辅助配置文件，可删除！   -->
 <typeAliases>
     <package name="com.peng.news.model"/>
 </typeAliases>
+
+<typeHandlers>
+    <package name="com.peng.news.mybatisTypeHandler"/>
+</typeHandlers>
 </configuration>

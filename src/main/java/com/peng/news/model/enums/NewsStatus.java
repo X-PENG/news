@@ -1,11 +1,22 @@
 package com.peng.news.model.enums;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * 新闻状态枚举类
  * @author PENG
  * @version 1.0
  * @date 2021/4/12 20:44
  */
+
+/**
+ * 让枚举类对象按照普通类对象的格式进行序列化。
+ */
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum NewsStatus {
     /**
      * 草稿
@@ -35,8 +46,27 @@ public enum NewsStatus {
     /**
      * 打回，重新修改
      */
-    REMODIFICATION(10, "打回修改")
+    RE_MODIFICATION(10, "打回修改")
     ;
+
+    /**
+     * 属于中转状态的状态列表，包括：
+     * 上传成功、审核失败、打回修改
+     */
+    public static final NewsStatus[] TRANSIT_STATUS_ARRAY = new NewsStatus[] {
+            NewsStatus.UPLOAD_SUCCESS,
+            NewsStatus.REVIEW_FAIL,
+            NewsStatus.RE_MODIFICATION
+    };
+
+    /**
+     * 属于中转状态的code集合
+     */
+    public static final Set<Integer> TRANSIT_STATUS_CODE_SET;
+
+    static {
+        TRANSIT_STATUS_CODE_SET = Arrays.stream(TRANSIT_STATUS_ARRAY).map(NewsStatus::getCode).collect(Collectors.toSet());
+    }
 
     NewsStatus() {
     }

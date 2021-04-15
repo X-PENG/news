@@ -24,8 +24,7 @@ mybatis-plus:
   type-aliases-package: com.peng.news.model
   configuration:
     map-underscore-to-camel-case: true
-#    cache-enabled: false
-#    local-cache-scope: statement
+  type-handlers-package: com.peng.news.mybatisTypeHandler
 
 #系统内部配置
 news:
