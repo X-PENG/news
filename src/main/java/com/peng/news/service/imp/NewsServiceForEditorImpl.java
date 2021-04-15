@@ -18,6 +18,7 @@ import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsVO;
 import com.peng.news.model.vo.UserVO;
 import com.peng.news.service.NewsServiceForEditor;
+import com.peng.news.service.SystemConfigService;
 import com.peng.news.util.Constants;
 import com.peng.news.util.JSONObjectConvertJavaBeanUtils;
 import com.peng.news.util.UserUtils;
@@ -41,6 +42,9 @@ public class NewsServiceForEditorImpl implements NewsServiceForEditor {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    SystemConfigService systemConfigService;
 
     @Override
     public CustomizedPage<NewsVO> transitNewsList(Integer page, Integer pageSize, QueryNewsBeanForEditor queryBean) {
@@ -182,17 +186,25 @@ public class NewsServiceForEditorImpl implements NewsServiceForEditor {
 
     /**
      * 给UpdateWrapper包装提交审核的相关信息
+     * 提交审核时，新闻状态可能会变成：审核中 或 待发布状态（如果关闭系统审核的话，即审核等级为0）
      * @param updateWrapper
      */
     private void wrapSubmitReviewInfo(UpdateWrapper<NewsPO> updateWrapper) {
-        //状态改为 审核中
-        updateWrapper.set("news_status", NewsStatus.UNDER_REVIEW.getCode());
         //送审人设为当前用户
         updateWrapper.set("submitter_id", UserUtils.getUser().getId());
         //设置送审时间
         updateWrapper.set("submit_time", new Timestamp(Instant.now().toEpochMilli()));
         //将新闻当前所处的审核轮次设为1，表示待一审！
         updateWrapper.set("current_review_epoch", 1);
+
+        //查询系统审核等级
+        if(systemConfigService.getCurReviewLevel() == 0) {
+            //如果没有开启审核，则新闻变成待发布状态
+            updateWrapper.set("news_status", NewsStatus.TO_BE_RELEASED.getCode());
+        }else {
+            //状态改为 审核中
+            updateWrapper.set("news_status", NewsStatus.UNDER_REVIEW.getCode());
+        }
     }
 
 
