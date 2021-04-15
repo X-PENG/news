@@ -15,14 +15,14 @@ public abstract class AbstractNewsServiceForInputter implements NewsServiceForIn
 
     @Override
     public Integer saveNewsAsDraftOrUpload(int tag, NewsBeanForInputterSave news) {
-        news.formatAndValidate();
-
         Integer newsId = news.getId();
         //不为null，则可能要更新新闻
         if(newsId != null){
             //确保传稿人更新的新闻存在，且是当前请求用户的草稿
             assertNewsExistsAndBelongCurUserDraft(newsId);
         }
+
+        news.formatAndValidate();
 
         if(tag == 1){
             return newsId == null ? createNewsAsDraft(news) : saveAsDraft(news);
