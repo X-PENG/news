@@ -15,19 +15,9 @@ public abstract class AbstractNewsServiceForInputter implements NewsServiceForIn
 
     @Override
     public Integer saveNewsAsDraftOrUpload(int tag, NewsBeanForInputterSave news) {
-        //先对新闻信息进行格式化
-        news.trimOrSetNull();
-        //再对信息进行校验
-        validateNewsInfo(news);
+        news.formatAndValidate();
+
         Integer newsId = news.getId();
-
-        //新闻存在外链的话，其他信息都不保存，设为null
-        if(news.getExternalUrl() != null) {
-            news.setContent(null);
-            news.setImgSource(null);
-            news.setArticleSource(null);
-        }
-
         //不为null，则可能要更新新闻
         if(newsId != null){
             //确保传稿人更新的新闻存在，且是当前请求用户的草稿
@@ -62,33 +52,6 @@ public abstract class AbstractNewsServiceForInputter implements NewsServiceForIn
         }
 
         return selectNews;
-    }
-
-    /**
-     * 对保存的新闻信息进行校验
-     * @param news
-     */
-    private void validateNewsInfo(NewsBeanForInputterSave news) {
-        validateNewsInfoIsComplete(news);
-        validateNewsInfoIsLegality(news);
-    }
-
-    /**
-     * 完整性校验
-     * @param news
-     */
-    private void validateNewsInfoIsComplete(NewsBeanForInputterSave news){
-        if(news.getTitle() == null) {
-            throw new RuntimeException("新闻标题不能为空！");
-        }
-    }
-
-    /**
-     * 合法性校验
-     * @param news
-     */
-    private void validateNewsInfoIsLegality(NewsBeanForInputterSave news){
-
     }
 
     /**
