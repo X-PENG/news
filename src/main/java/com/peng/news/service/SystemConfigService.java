@@ -8,7 +8,7 @@ import com.peng.news.model.vo.SystemConfigVO;
  * @date 2021/3/25 21:08
  */
 public interface SystemConfigService {
-    boolean setReviewLevel(int reviewLevel);
+    String setReviewLevel(int reviewLevel);
 
     SystemConfigVO loadCurSystemConfig();
 

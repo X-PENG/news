@@ -32,8 +32,7 @@ public class SystemConfigController {
      */
     @PutMapping("/review")
     public Result setReviewLevel(int reviewLevel){
-        systemConfigService.setReviewLevel(reviewLevel);
-        return Result.success("设置成功！");
+        return Result.success(systemConfigService.setReviewLevel(reviewLevel));
     }
 
     /**

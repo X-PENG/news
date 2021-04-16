@@ -1,25 +1,28 @@
 package com.peng.news.service.imp;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.peng.news.mapper.ResourceMapper;
-import com.peng.news.mapper.RoleMapper;
-import com.peng.news.mapper.RoleResourceMapper;
-import com.peng.news.mapper.SystemConfigMapper;
-import com.peng.news.model.po.ResourcePO;
-import com.peng.news.model.po.RolePO;
-import com.peng.news.model.po.RoleResourcePO;
-import com.peng.news.model.po.SystemConfigPO;
+import com.peng.news.mapper.*;
+import com.peng.news.model.dto.ReModificationInfoDTO;
+import com.peng.news.model.enums.NewsStatus;
+import com.peng.news.model.po.*;
 import com.peng.news.model.vo.SystemConfigVO;
 import com.peng.news.service.SystemConfigService;
+import com.peng.news.util.Constants;
+import com.peng.news.util.DateTimeFormatUtils;
+import com.peng.news.util.UserUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author PENG
@@ -58,6 +61,9 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Autowired
     RoleMapper roleMapper;
 
+    @Autowired
+    NewsMapper newsMapper;
+
     /**
      * 本地缓存系统配置的review_level
      */
@@ -65,7 +71,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean setReviewLevel(int reviewLevel) {
+    public String setReviewLevel(int reviewLevel) {
         if(reviewLevel < 0 || reviewLevel > MAX_REVIEW_LEVEL){
             throw new RuntimeException("非法设置，审核等级不能小于0或不能大于" + MAX_REVIEW_LEVEL);
         }
@@ -74,19 +80,19 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         cacheForReviewLevel = null;
 
         Integer curReviewLevel = loadCurSystemConfig().getReviewLevel();
-        if(reviewLevel != curReviewLevel){
+        if(reviewLevel != curReviewLevel) {
             //状态需要改变的资源
             List<String> resourcesToBeChanged = new ArrayList<>();
             //状态改变的结果
             Boolean status;
             if(reviewLevel < curReviewLevel){
-                //小于的话，就要删除/禁用几个有关审核的资源
+                //小于的话，就要禁用几个有关审核的资源
                 status = false;
                 for (int i = reviewLevel + 1; i <= curReviewLevel ; i++) {
                     resourcesToBeChanged.add(String.format(REVIEW_RESOURCE_TEMPLATE, i));
                 }
             }else{
-                //大于的话，就要添加/开启几个有关审核的资源
+                //大于的话，就要开启几个有关审核的资源
                 status = true;
                 for (int i = curReviewLevel + 1; i <= reviewLevel ; i++) {
                     resourcesToBeChanged.add(String.format(REVIEW_RESOURCE_TEMPLATE, i));
@@ -119,8 +125,40 @@ public class SystemConfigServiceImpl implements SystemConfigService {
             UpdateWrapper<SystemConfigPO> updateWrapper = new UpdateWrapper<>();
             updateWrapper.set("review_level", reviewLevel).eq("id", DEFAULT_ID);
             systemConfigMapper.update(null, updateWrapper);
+
+
+            /**
+             * 如果动态修改了审核等级，就把 所有 处于 审核中 的新闻 都 重置为 打回修改 的状态（也就是会回到新闻中转站）
+             */
+            List<Object> newsIdList = newsMapper.selectObjs(new QueryWrapper<NewsPO>().select("id").eq("news_status", NewsStatus.UNDER_REVIEW.getCode()));
+            if(newsIdList.size() != 0) {
+                //更新
+                UpdateWrapper<NewsPO> newsPOUpdateWrapper = new UpdateWrapper<>();
+                //所有审核中的新闻都更新
+                newsPOUpdateWrapper.in("id", newsIdList);
+                newsPOUpdateWrapper.set("news_status", NewsStatus.RE_MODIFICATION.getCode());
+                newsPOUpdateWrapper.set("reviewers", null);
+                newsPOUpdateWrapper.set("submitter_id", null);
+                newsPOUpdateWrapper.set("submit_time", null);
+                newsPOUpdateWrapper.set("current_review_epoch", 0);
+                newsPOUpdateWrapper.set("previous_epoch_review_pass_time", null);
+                //构造打回修改信息
+                ReModificationInfoDTO reModificationInfoDTO = new ReModificationInfoDTO();
+                reModificationInfoDTO.setOperateTime(DateTimeFormatUtils.format(LocalDateTime.now()));
+                reModificationInfoDTO.setSuggestion("系统温馨提示：系统的审核流程发生变化，所有审核中的新闻全部回到中转站！");
+                UserPO operator = new UserPO();
+                operator.setId(UserUtils.getUser().getId());
+                reModificationInfoDTO.setOperator(operator);
+                Map map = new HashMap();
+                map.put(Constants.RE_MODIFICATION_KEY, reModificationInfoDTO);
+                newsPOUpdateWrapper.set("extra", JSON.toJSONString(map));
+
+                newsMapper.update(null, newsPOUpdateWrapper);
+            }
+
+            return "设置成功！共有【" + newsIdList.size() + "】条审核中的新闻被打回到中转站。";
         }
-        return true;
+        return "设置成功！";
     }
 
     @Override
