@@ -198,6 +198,8 @@ public class NewsServiceForEditorImpl implements NewsServiceForEditor {
         updateWrapper.set("current_review_epoch", 1);
         //将reviewers设为null，表示还没有人参与审核
         updateWrapper.set("reviewers", null);
+        //清空脏数据
+        updateWrapper.set("previous_epoch_review_pass_time", null);
         //extra设为null，清空脏数据
         updateWrapper.set("extra", null);
 
