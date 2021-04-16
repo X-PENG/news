@@ -196,6 +196,10 @@ public class NewsServiceForEditorImpl implements NewsServiceForEditor {
         updateWrapper.set("submit_time", new Timestamp(Instant.now().toEpochMilli()));
         //将新闻当前所处的审核轮次设为1，表示待一审！
         updateWrapper.set("current_review_epoch", 1);
+        //将reviewers设为null，表示还没有人参与审核
+        updateWrapper.set("reviewers", null);
+        //extra设为null，清空脏数据
+        updateWrapper.set("extra", null);
 
         //查询系统审核等级
         if(systemConfigService.getCurReviewLevel() == 0) {
