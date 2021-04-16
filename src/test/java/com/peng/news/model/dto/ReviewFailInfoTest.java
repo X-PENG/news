@@ -34,6 +34,7 @@ public class ReviewFailInfoTest {
         map.put(Constants.REVIEW_FAIL_KEY, reviewFailInfoDTO);
         String jsonStr2 = JSON.toJSONString(map);
         System.out.println(jsonStr2);
+        System.out.println(jsonStr2.length());
 
         Map parseObject = JSON.parseObject(jsonStr2, Map.class);
         JSONObject jsonObject = ((JSONObject) parseObject.get(Constants.REVIEW_FAIL_KEY));

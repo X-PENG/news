@@ -12,6 +12,11 @@ public interface Constants {
     String EDITORS_SEPARATOR = "、";
 
     /**
+     * 参与审核的用户姓名分隔符
+     */
+    String REVIEWERS_SEPARATOR = "、";
+
+    /**
      * 当新闻审核失败时，审核失败相关信息保存在extra字段中时的key
      */
     String REVIEW_FAIL_KEY = "REVIEW_FAIL";

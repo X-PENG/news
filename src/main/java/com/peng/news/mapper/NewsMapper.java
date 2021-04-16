@@ -16,10 +16,19 @@ import org.apache.ibatis.annotations.Param;
 public interface NewsMapper extends BaseMapper<NewsPO> {
 
     /**
-     * 自定义使用mp的分页查询以及条件构造器Wrapper
+     * 自定义使用mp的分页查询以及条件构造器Wrapper，分页、条件查询中转新闻
      * @param page
      * @param wrapper
      * @return
      */
     IPage<NewsVO> selectTransitNewsPage(IPage page, @Param(Constants.WRAPPER) Wrapper wrapper);
+
+
+    /**
+     * 自定义使用mp的分页查询以及条件构造器Wrapper，分页、条件查询审核中的新闻
+     * @param page
+     * @param wrapper
+     * @return
+     */
+    IPage<NewsVO> selectUnderReviewNewsPage(IPage page, @Param(Constants.WRAPPER) Wrapper wrapper);
 }

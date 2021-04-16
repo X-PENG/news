@@ -21,6 +21,7 @@
         <result property="submitTime" column="submit_time"/>
         <result property="latestEditTime" column="latest_edit_time"/>
         <result property="currentReviewEpoch" column="current_review_epoch"/>
+        <result property="previousEpochReviewPassTime" column="previous_epoch_review_pass_time"/>
         <result property="realPubTime" column="real_pub_time"/>
         <result property="showPubTime" column="show_pub_time"/>
         <result property="initReadingCount" column="init_reading_count"/>
@@ -33,8 +34,19 @@
         <association property="latestEditor" column="latest_editor_id" select="com.peng.news.mapper.UserMapper.selectNameById"/>
     </resultMap>
 
+    <resultMap id="ResultMapWithSubmitterAndLatestEditor" type="newsVO" extends="BaseResultMap">
+        <association property="submitter" column="submitter_id" select="com.peng.news.mapper.UserMapper.selectNameById"/>
+        <association property="latestEditor" column="latest_editor_id" select="com.peng.news.mapper.UserMapper.selectNameById"/>
+    </resultMap>
+
     <select id="selectTransitNewsPage" resultMap="ResultMapWithInputterAndLatestEditor">
         select id, title, external_url, news_status, editors, latest_editor_id, latest_edit_time, inputter_id, complete_input_time
+        from news
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectUnderReviewNewsPage" resultMap="ResultMapWithSubmitterAndLatestEditor">
+        select id, title, external_url, submitter_id, submit_time, latest_editor_id, latest_edit_time, previous_epoch_review_pass_time
         from news
         ${ew.customSqlSegment}
     </select>
