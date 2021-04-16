@@ -124,7 +124,13 @@ public class NewsVO {
     /**
      * 新闻上一轮审核的通过时间。如果新闻处于待发布状态，则表示新闻通过终审的时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     Timestamp previousEpochReviewPassTime;
+
+    /**
+     * 发布新闻的用户
+     */
+    UserPO publisher;
 
     /**
      * 新闻实际的发布时间

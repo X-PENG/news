@@ -130,6 +130,11 @@ public class NewsPO {
     Timestamp previousEpochReviewPassTime;
 
     /**
+     * 发布新闻的用户id
+     */
+    Integer publisherId;
+
+    /**
      * 新闻实际的发布时间
      */
     Timestamp realPubTime;
