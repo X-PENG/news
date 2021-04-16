@@ -125,6 +125,11 @@ public class NewsPO {
     Integer currentReviewEpoch;
 
     /**
+     * 新闻上一轮审核的通过时间。如果新闻处于待发布状态，则表示新闻通过终审的时间
+     */
+    Timestamp previousEpochReviewPassTime;
+
+    /**
      * 新闻实际的发布时间
      */
     Timestamp realPubTime;
