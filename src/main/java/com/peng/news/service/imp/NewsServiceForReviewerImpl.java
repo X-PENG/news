@@ -181,9 +181,17 @@ public class NewsServiceForReviewerImpl implements NewsServiceForReviewer {
         //判断是否要将当前用户插入到参与编辑人员中。若已经包含，则不插入
         UserVO curUser = UserUtils.getUser();
         NewsPO selectNews = newsMapper.selectOne(new QueryWrapper<NewsPO>().select("editors").eq("id", newsId));
-        if(!selectNews.getEditors().contains(curUser.getRealName())) {
+        String selectNewsEditors = selectNews.getEditors();
+        if(selectNewsEditors == null || !selectNewsEditors.contains(curUser.getRealName())) {
             //如果不包含，就插入当前用户
-            updateWrapper.set("editors", selectNews.getEditors() + curUser.getRealName() + Constants.EDITORS_SEPARATOR);
+            //首先处理selectNewsEditors
+            if(selectNewsEditors == null) {
+                selectNewsEditors = "";
+            }else if(!selectNewsEditors.endsWith(Constants.EDITORS_SEPARATOR)) {
+                //不是以分隔符结尾，先加上分隔符
+                selectNewsEditors = selectNewsEditors + Constants.EDITORS_SEPARATOR;
+            }
+            updateWrapper.set("editors", selectNewsEditors + curUser.getRealName() + Constants.EDITORS_SEPARATOR);
         }
         //更新最近修改的用户为自己
         updateWrapper.set("latest_editor_id", curUser.getId());
