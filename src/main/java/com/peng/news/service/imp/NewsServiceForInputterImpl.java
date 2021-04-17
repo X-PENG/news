@@ -65,7 +65,7 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
         newsPO.setNewsStatus(NewsStatus.UPLOAD_SUCCESS.getCode());
         newsPO.setInputterId(curUser.getId());
         newsPO.setCompleteInputTime(new Timestamp(Instant.now().toEpochMilli()));
-        //上传新闻时，要自动将当前用户的姓名填进去
+        //上传新闻时，要自动将传稿人的姓名填进去。传稿人一定是第一个编辑者，所以直接set
         newsPO.setEditors(curUser.getRealName() + Constants.EDITORS_SEPARATOR);
         newsMapper.insert(newsPO);
         return newsPO.getId();
@@ -89,7 +89,7 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
         newsPO.setNewsStatus(NewsStatus.UPLOAD_SUCCESS.getCode());
         newsPO.setCompleteInputTime(new Timestamp(Instant.now().toEpochMilli()));
         UserVO curUser = UserUtils.getUser();
-        //上传新闻时，要自动将当前用户的姓名填进去
+        //上传新闻时，要自动将传稿人的姓名填进去。传稿人一定是第一个编辑者，所以直接set
         newsPO.setEditors(curUser.getRealName() + Constants.EDITORS_SEPARATOR);
         newsMapper.update(newsPO, updateWrapper);
         return news.getId();
