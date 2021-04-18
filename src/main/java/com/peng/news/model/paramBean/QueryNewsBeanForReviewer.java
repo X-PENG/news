@@ -83,37 +83,4 @@ public class QueryNewsBeanForReviewer {
             return new SingleColumnOrderRule("previous_epoch_review_pass_time", false);
         }
     }
-
-
-    /**
-     * 封装单字段排序规则
-     */
-    public static class SingleColumnOrderRule {
-
-        /**
-         * 排序的字段名
-         */
-        String column;
-
-        /**
-         * 是否升序；true，升序；false，则降序
-         */
-        boolean isAsc;
-
-        public SingleColumnOrderRule() {
-        }
-
-        public SingleColumnOrderRule(String column, boolean isAsc) {
-            this.column = column;
-            this.isAsc = isAsc;
-        }
-
-        public String getColumn() {
-            return column;
-        }
-
-        public boolean isAsc() {
-            return isAsc;
-        }
-    }
 }

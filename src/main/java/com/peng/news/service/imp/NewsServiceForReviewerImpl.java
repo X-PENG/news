@@ -12,6 +12,7 @@ import com.peng.news.model.enums.NewsStatus;
 import com.peng.news.model.paramBean.NewsBeanForReviewerSave;
 import com.peng.news.model.paramBean.QueryNewsBeanForReviewer;
 import com.peng.news.model.paramBean.ReviewResultParamBean;
+import com.peng.news.model.paramBean.SingleColumnOrderRule;
 import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.po.UserPO;
 import com.peng.news.model.vo.NewsVO;
@@ -61,7 +62,7 @@ public class NewsServiceForReviewerImpl implements NewsServiceForReviewer {
         queryWrapper.eq(queryBean.getSubmitterId() != null, "submitter_id", queryBean.getSubmitterId());
 
         //构造排序
-        QueryNewsBeanForReviewer.SingleColumnOrderRule orderRule = queryBean.getOrderRule(epoch);
+        SingleColumnOrderRule orderRule = queryBean.getOrderRule(epoch);
         if(orderRule.isAsc()) {
             queryWrapper.orderByAsc(orderRule.getColumn());
         }else {
