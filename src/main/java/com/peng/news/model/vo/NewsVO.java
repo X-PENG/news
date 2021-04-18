@@ -140,6 +140,7 @@ public class NewsVO {
     /**
      * 新闻对外显示的发布时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     Timestamp showPubTime;
 
     /**

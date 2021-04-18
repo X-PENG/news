@@ -52,7 +52,7 @@
     </select>
 
     <select id="selectUnpublishedNewsList" resultMap="BaseResultMap">
-        select id, title, news_status, img_source, article_source, external_url, editors, reviewers, previous_epoch_review_pass_time
+        select id, title, news_status, img_source, article_source, external_url, editors, reviewers, previous_epoch_review_pass_time, show_pub_time
         from news
         ${ew.customSqlSegment}
     </select>
