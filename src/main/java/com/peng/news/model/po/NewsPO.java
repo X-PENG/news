@@ -67,6 +67,11 @@ public class NewsPO {
     Boolean isTop;
 
     /**
+     * 新闻设置置顶的时机
+     */
+    Timestamp setTopTime;
+
+    /**
      * 外网的新闻链接
      */
     String externalUrl;

@@ -134,6 +134,10 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         updateWrapper.set("is_image_news", pubInfo.isImageNews());
         updateWrapper.set("is_top", pubInfo.isTop());
         Timestamp now = new Timestamp(Instant.now().toEpochMilli());
+        if(pubInfo.isTop()) {
+            //如果新闻设置了置顶，就设置置顶时间
+            updateWrapper.set("set_top_time", now);
+        }
         updateWrapper.set("show_pub_time", pubInfo.getShowPubTime() == null ? now : pubInfo.getShowPubTime());
         updateWrapper.set("init_reading_count", pubInfo.getInitReadingCount());
         //设置发布人为当前用户
