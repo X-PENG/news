@@ -91,7 +91,7 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         UpdateWrapper<NewsPO> updateWrapper = new UpdateWrapper<>();
         //按id更新
         updateWrapper.eq("id", newsId);
-        updateWrapper.set("news_status", NewsStatus.RE_MODIFICATION);
+        updateWrapper.set("news_status", NewsStatus.RE_MODIFICATION.getCode());
         //设置打回修改相关信息
         ReModificationInfoDTO info = new ReModificationInfoDTO();
         info.setOperateTime(DateTimeFormatUtils.format(LocalDateTime.now()));
@@ -132,27 +132,18 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         updateWrapper.set("editors", pubInfo.getEditors());
         updateWrapper.set("reviewers", pubInfo.getReviewers());
         updateWrapper.set("is_image_news", pubInfo.isImageNews());
-        updateWrapper.set("is_top", pubInfo.isTop());
+        setTopStatus(updateWrapper, pubInfo.isTop());
+        setCarouselStatus(updateWrapper, pubInfo.isCarousel(), pubInfo.getImgUrlForCarousel());
+        setHeadlinesStatus(updateWrapper, pubInfo.isHeadlines());
         Timestamp now = new Timestamp(Instant.now().toEpochMilli());
-        if(pubInfo.isTop()) {
-            //如果新闻设置了置顶，就设置置顶时间
-            updateWrapper.set("set_top_time", now);
-        }
         updateWrapper.set("show_pub_time", pubInfo.getShowPubTime() == null ? now : pubInfo.getShowPubTime());
         updateWrapper.set("init_reading_count", pubInfo.getInitReadingCount());
         //设置发布人为当前用户
         updateWrapper.set("publisher_id", UserUtils.getUser().getId());
         //设置实际发布时间
         updateWrapper.set("real_pub_time", now);
-        //设置发布状态
-        int newsStatusCode = pubInfo.getPubStatus().getCode();
-        updateWrapper.set("news_status", newsStatusCode);
-        if(newsStatusCode == NewsStatus.PUBLISHED_AS_CAROUSEL.getCode() || newsStatusCode == NewsStatus.PUBLISHED_AS_CAROUSEL_AND_HEADLINES.getCode()) {
-            //如果设置了轮播发布，需要保存轮播图片的地址
-            Map map = new HashMap();
-            map.put(Constants.CAROUSEL_IMAGE_URL_KEY, pubInfo.getImgUrlForCarousel());
-            updateWrapper.set("extra", JSON.toJSONString(map));
-        }
+        //设置为已发布状态
+        updateWrapper.set("news_status", NewsStatus.PUBLISHED.getCode());
 
         newsMapper.update(null, updateWrapper);
         return true;
@@ -173,6 +164,52 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
 
         if(newsMapper.selectCount(queryWrapper) == 0) {
             throw new RuntimeException("待发布站中不存在此新闻，操作失败！");
+        }
+    }
+
+
+    /**
+     * 设置新闻的置顶状态
+     * @param updateWrapper
+     * @param isTop
+     */
+    private void setTopStatus(UpdateWrapper<NewsPO> updateWrapper, boolean isTop) {
+        updateWrapper.set("is_top", isTop);
+        if(isTop) {
+            //如果置顶，则更新 设置置顶的时机
+            updateWrapper.set("set_top_time", new Timestamp(Instant.now().toEpochMilli()));
+        }
+    }
+
+    /**
+     * 设置新闻的头条状态
+     * @param updateWrapper
+     * @param isHeadlines 是否作为头条
+     */
+    private void setHeadlinesStatus(UpdateWrapper<NewsPO> updateWrapper, boolean isHeadlines) {
+        updateWrapper.set("is_headlines", isHeadlines);
+        if(isHeadlines) {
+            //如果设为头条，则更新 设置头条的时机
+            updateWrapper.set("set_headlines_time", new Timestamp(Instant.now().toEpochMilli()));
+        }
+    }
+
+    /**
+     * 设置新闻的轮播状态
+     * @param updateWrapper
+     * @param isCarousel 是否轮播
+     * @param imgUrlForCarousel 用作轮播的图片地址
+     */
+    private void setCarouselStatus(UpdateWrapper<NewsPO> updateWrapper, boolean isCarousel, String imgUrlForCarousel) {
+        updateWrapper.set("is_carousel", isCarousel);
+        if(isCarousel) {
+            //如果将新闻设为轮播，则更新 设置轮播的时机
+            updateWrapper.set("set_carousel_time", new Timestamp(Instant.now().toEpochMilli()));
+
+            //如果设置了轮播，需要保存轮播图片的地址到extra字段
+            Map map = new HashMap();
+            map.put(Constants.CAROUSEL_IMAGE_URL_KEY, imgUrlForCarousel);
+            updateWrapper.set("extra", JSON.toJSONString(map));
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.peng.news.model.paramBean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.peng.news.model.enums.NewsStatus;
 import com.peng.news.util.ValidateUrlUtils;
 import lombok.Data;
 
@@ -123,29 +122,5 @@ public class NewsBeanForPublisherPub {
                 throw new RuntimeException("图片地址不规范，请正确设置轮播图地址！");
             }
         }
-    }
-
-    /**
-     * 返回新闻的发布状态
-     * @return
-     */
-    public NewsStatus getPubStatus() {
-        if(carousel && headlines) {
-            //作为轮播和头条发布
-            return NewsStatus.PUBLISHED_AS_CAROUSEL_AND_HEADLINES;
-        }
-
-        if(carousel) {
-            //作为轮播发布
-            return NewsStatus.PUBLISHED_AS_CAROUSEL;
-        }
-
-        if(headlines) {
-            //作为头条发布
-            return NewsStatus.PUBLISHED_AS_HEADLINES;
-        }
-
-        //普通发布
-        return NewsStatus.PUBLISHED_NORMAL;
     }
 }
