@@ -11,6 +11,10 @@
         <result property="imgSource" column="img_source"/>
         <result property="articleSource" column="article_source"/>
         <result property="newsStatus" column="news_status" javaType="com.peng.news.model.enums.NewsStatus" jdbcType="TINYINT" typeHandler="com.peng.news.mybatisTypeHandler.NewsStatusTypeHandler"/>
+        <result property="isCarousel" column="is_carousel"/>
+        <result property="setCarouselTime" column="set_carousel_time"/>
+        <result property="isHeadlines" column="is_headlines"/>
+        <result property="setHeadlinesTime" column="set_headlines_time"/>
         <result property="isImageNews" column="is_image_news"/>
         <result property="isTop" column="is_top"/>
         <result property="setTopTime" column="set_top_time"/>
