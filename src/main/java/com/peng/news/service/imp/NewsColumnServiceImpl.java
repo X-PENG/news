@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.peng.news.mapper.NewsColumnMapper;
 import com.peng.news.model.po.NewsColumnPO;
+import com.peng.news.model.vo.NewsColumnVO;
 import com.peng.news.service.NewsColumnService;
 import com.peng.news.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -150,6 +152,33 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         newsColumnMapper.update(null, new UpdateWrapper<NewsColumnPO>().eq("id", newsColId).set("enabled", enabled));
 
         return true;
+    }
+
+    @Override
+    public List<NewsColumnVO> newsColumnSelectData() {
+        //获得所有一级栏目
+        List<NewsColumnVO> list = newsColumnMapper.getChildrenNewsColumnListByParentId(null);
+        List<NewsColumnVO> returnList = new ArrayList<>();
+        for (NewsColumnVO newsColumnVO : list) {
+            if(newsColumnVO.getIsHasChildren()) {
+                //查询子栏目列表
+                newsColumnVO.setChildren(newsColumnMapper.getChildrenNewsColumnListByParentId(newsColumnVO.getId()));
+                /**
+                 * 如果该栏目有子栏目，就创建一个不包含子栏目的副本，并添加到集合中，目的是：
+                 * 解决element-ui的级联选择器不能选择父节点的问题
+                 */
+                //创建副本
+                NewsColumnVO copyOne = new NewsColumnVO();
+                copyOne.setId(newsColumnVO.getId());
+                copyOne.setTitle(newsColumnVO.getTitle());
+
+                //将无孩子的副本添加到集合中
+                returnList.add(copyOne);
+            }
+            //添加自己
+            returnList.add(newsColumnVO);
+        }
+        return returnList;
     }
 
 

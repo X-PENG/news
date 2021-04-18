@@ -18,4 +18,19 @@
         <result property="updateTime" column="update_time"/>
     </resultMap>
 
+    <select id="getChildrenNewsColumnListByParentId" resultMap="BaseResultMap">
+       <!-- 新闻栏目必须开启 -->
+        select id, title, is_has_children
+        from news_column
+        where enabled = 1 and
+        <choose>
+            <when test="parentId == null">
+                parent_id is null
+            </when>
+            <otherwise>
+                parent_id=#{parentId}
+            </otherwise>
+        </choose>
+    </select>
+
 </mapper>

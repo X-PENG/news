@@ -50,4 +50,10 @@
         from news
         ${ew.customSqlSegment}
     </select>
+
+    <select id="selectUnpublishedNewsList" resultMap="BaseResultMap">
+        select id, title, news_status, img_source, article_source, external_url, editors, reviewers, previous_epoch_review_pass_time
+        from news
+        ${ew.customSqlSegment}
+    </select>
 </mapper>

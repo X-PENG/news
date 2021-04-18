@@ -59,13 +59,29 @@ public enum NewsStatus {
             NewsStatus.RE_MODIFICATION
     };
 
+
     /**
      * 属于中转状态的code集合
      */
     public static final Set<Integer> TRANSIT_STATUS_CODE_SET;
 
+    /**
+     * 属于 待发布状态 的状态列表，包括：
+     * 待发布、撤销发布 都是 待发布状态
+     */
+    public static final NewsStatus[] TO_BE_RELEASED_STATUS_ARRAY = new NewsStatus[] {
+            NewsStatus.TO_BE_RELEASED,
+            NewsStatus.REVOKE_PUBLISHED
+    };
+
+    /**
+     * 属于待发布状态的code集合
+     */
+    public static final Set<Integer> TO_BE_RELEASED_STATUS_CODE_SET;
+
     static {
         TRANSIT_STATUS_CODE_SET = Arrays.stream(TRANSIT_STATUS_ARRAY).map(NewsStatus::getCode).collect(Collectors.toSet());
+        TO_BE_RELEASED_STATUS_CODE_SET = Arrays.stream(TO_BE_RELEASED_STATUS_ARRAY).map(NewsStatus::getCode).collect(Collectors.toSet());
     }
 
     NewsStatus() {

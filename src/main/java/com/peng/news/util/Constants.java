@@ -25,4 +25,9 @@ public interface Constants {
      * 当新闻被打回修改时，相关信息保存在extra字段中时的key
      */
     String RE_MODIFICATION_KEY = "RE_MODIFICATION";
+
+    /**
+     * 当新闻设为轮播发布时，轮播图片地址保存在extra字段中时的key
+     */
+    String CAROUSEL_IMAGE_URL_KEY = "CAROUSEL_IMAGE_URL";
 }

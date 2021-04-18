@@ -1,6 +1,7 @@
 package com.peng.news.service;
 
 import com.peng.news.model.po.NewsColumnPO;
+import com.peng.news.model.vo.NewsColumnVO;
 
 import java.util.List;
 
@@ -50,4 +51,10 @@ public interface NewsColumnService {
      * @return
      */
     boolean enableOrDisableNewsColumn(Integer newsColId, boolean enabled);
+
+    /**
+     * 查询新闻栏目级联选择器数据
+     * @return
+     */
+    List<NewsColumnVO> newsColumnSelectData();
 }
