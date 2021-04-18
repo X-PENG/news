@@ -29,24 +29,12 @@ public enum NewsStatus {
     UNDER_REVIEW(2, "审核中"),
     REVIEW_FAIL(3, "审核失败"),
     TO_BE_RELEASED(4, "待发布"),
-    /**
-     * 普通发布
-     */
-    PUBLISHED_NORMAL(5, "已发布"),
-    /**
-     * 发布，且放到轮播图上
-     */
-    PUBLISHED_AS_CAROUSEL(6, "已发布+轮播图"),
-    /**
-     * 发布，且显示在头条上
-     */
-    PUBLISHED_AS_HEADLINES(7, "已发布+头条新闻"),
-    PUBLISHED_AS_CAROUSEL_AND_HEADLINES(8, "已发布+轮播+头条"),
-    REVOKE_PUBLISHED(9, "撤销发布"),
+    PUBLISHED(5, "已发布"),
+    REVOKE_PUBLISHED(6, "撤销发布"),
     /**
      * 打回，重新修改
      */
-    RE_MODIFICATION(10, "打回修改")
+    RE_MODIFICATION(7, "打回修改")
     ;
 
     /**
