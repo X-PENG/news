@@ -107,10 +107,36 @@ public class SystemConfigServiceImpl implements SystemConfigService {
                 }
 
                 List<Object> resourceIdList = resourceMapper.selectObjs(new QueryWrapper<ResourcePO>().select("id").in("url", resourcesToBeChanged));
+
+                //由于可能需要处理父资源，所以需要查询父资源id
+                Integer parentId = null;
+
+                /**
+                 * 如果现在设为0，则需要把父资源的分配记录也删掉；
+                 * 如果之前是0，则需要把父资源也分配下去
+                 */
+                if(reviewLevel == 0 || curReviewLevel ==0) {
+                    //查询出父资源id
+                    parentId = resourceMapper.selectOne(new QueryWrapper<ResourcePO>().select("parent_id").eq("url", resourcesToBeChanged.get(0))).getParentId();
+                }
+
                 if(!status){
+                    if(parentId != null) {
+                        //父资源的分配记录也要删除
+                        resourceIdList.add(parentId);
+                    }
+
                     //如果是禁用资源，则删除这些资源的分配记录
                     roleResourceMapper.delete(new QueryWrapper<RoleResourcePO>().in("resource_id", resourceIdList));
                 }else {
+                    if(parentId != null) {
+                        //先删除父资源的分配记录，以防万一父资源存在分配记录
+                        roleResourceMapper.delete(new QueryWrapper<RoleResourcePO>().eq("resource_id", parentId));
+
+                        //再统一插入父资源的分配记录
+                        resourceIdList.add(parentId);
+                    }
+
                     //如果是开启资源，自动为系统管理员角色分配这些资源
                     List<Object> adminRoleIdList = roleMapper.selectObjs(new QueryWrapper<RolePO>().select("id").eq("is_system_admin", 1));
                     for(Object adminRoleId : adminRoleIdList){
