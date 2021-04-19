@@ -87,9 +87,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updatePersonalInfo(UserPO userPO) {
-        /**
-         * todo 用户信息完整性验证：phone
-         */
         //得到当前登录用户的id，防止修改别人的信息
         Integer userId = getUserId(null);
         assertUserExists(userId);
@@ -117,9 +114,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean addUser(UserPO userPO) {
-        /**
-         * todo 用户信息完整性验证：username、realName、passwd、gender、phone
-         */
+        //格式化并且校验信息
+        formatAndValidateForAddUser(userPO);
+
         assertUserNameNotExists(userPO.getUsername());
         userPO.setId(null);
         userPO.setPasswd(passwordEncoder.encode(userPO.getPasswd()));
@@ -129,6 +126,46 @@ public class UserServiceImpl implements UserService {
         userPO.setUpdateTime(null);
         userMapper.insert(userPO);
         return true;
+    }
+
+    /**
+     * 为添加用户进行格式化和校验信息。
+     * 格式化，就是修剪字符串两边空格。
+     * 校验，就是对信息进行完整性校验。
+     * @param userPO
+     */
+    private void formatAndValidateForAddUser(UserPO userPO) {
+        String username = userPO.getUsername();
+        String realName = userPO.getRealName();
+        Boolean gender = userPO.getGender();
+        String passwd = userPO.getPasswd();
+        String phone = userPO.getPhone();
+
+        //校验和格式化
+        if(gender == null) {
+            throw new RuntimeException("请选择性别！");
+        }
+        if (username == null || "".equals(username = username.trim())) {
+            throw new RuntimeException("用户名不能为空！");
+        }
+
+        if (realName == null || "".equals(realName = realName.trim())) {
+            throw new RuntimeException("用户实名不能为空！");
+        }
+
+        if (passwd == null || "".equals(passwd = passwd.trim())) {
+            throw new RuntimeException("密码不能为空！");
+        }
+
+        if (phone == null || "".equals(phone = phone.trim())) {
+            throw new RuntimeException("用户电话不能为空！");
+        }
+
+        //赋值格式化后的值
+        userPO.setUsername(username);
+        userPO.setRealName(realName);
+        userPO.setPasswd(passwd);
+        userPO.setPhone(phone);
     }
 
     @Override

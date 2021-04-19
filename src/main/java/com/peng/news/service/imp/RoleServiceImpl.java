@@ -38,9 +38,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public boolean addRole(RolePO rolePO) {
-        /**
-         * todo 角色信息完整性验证：nameEn、nameZh
-         */
+        //格式化和校验信息
+        formatAndValidateForAddRole(rolePO);
+
         rolePO.setNameEn(rolePO.getNameEn().trim());
         rolePO.setNameZh(rolePO.getNameZh().trim());
         if(!rolePO.getNameEn().startsWith(RolePO.ROLE_PREFIX)){
@@ -52,6 +52,29 @@ public class RoleServiceImpl implements RoleService {
         rolePO.setUpdateTime(null);
         roleMapper.insert(rolePO);
         return true;
+    }
+
+    /**
+     * 为添加角色进行格式化和校验信息。
+     * 格式化，是指将字符串两边空格进行修剪。
+     * 校验，是完整性校验
+     * @param rolePO
+     */
+    private void formatAndValidateForAddRole(RolePO rolePO) {
+        String nameEn = rolePO.getNameEn();
+        String nameZh = rolePO.getNameZh();
+
+        if(nameEn == null || "".equals(nameEn = nameEn.trim())) {
+            throw new RuntimeException("角色英文名不能为空！");
+        }
+
+        if(nameZh == null || "".equals(nameZh = nameZh.trim())) {
+            throw new RuntimeException("角色中文名不能为空！");
+        }
+
+        //赋值格式化后的值
+        rolePO.setNameEn(nameEn);
+        rolePO.setNameZh(nameZh);
     }
 
     @Transactional(rollbackFor = Exception.class)

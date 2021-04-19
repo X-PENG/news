@@ -46,16 +46,28 @@ public class UserPO {
     Timestamp updateTime;
 
     /**
-     * 返回修改个人资料的UserPO。
+     * 返回用于修改个人资料的UserPO。
      * 用户只能修改自己的 phone、email、description
      * @param userPO
      * @return
      */
     public static UserPO forUpdatePersonalInfo(UserPO userPO){
+        String phone = userPO.getPhone();
+        String email = userPO.getEmail();
+
+        if(phone == null || "".equals(phone = phone.trim())) {
+            throw new RuntimeException("用户电话不能为空");
+        }
+
+        //格式化为null或修剪字符串两边空格
+        if(email == null || "".equals(email = email.trim())) {
+            email = null;
+        }
+
         UserPO userPO1 = new UserPO();
         userPO1.setId(userPO.getId());
-        userPO1.setPhone(userPO.getPhone());
-        userPO1.setEmail(userPO.getEmail());
+        userPO1.setPhone(phone);
+        userPO1.setEmail(email);
         userPO1.setDescription(userPO.getDescription());
         return userPO1;
     }
