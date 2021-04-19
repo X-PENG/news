@@ -39,4 +39,12 @@ public interface NewsMapper extends BaseMapper<NewsPO> {
      * @return
      */
     IPage<NewsVO> selectUnpublishedNewsList(IPage page, @Param(Constants.WRAPPER) Wrapper wrapper);
+
+    /**
+     * 自定义使用mp的分页查询以及条件构造器Wrapper，分页、条件查询 已发布 的新闻
+     * @param page
+     * @param wrapper
+     * @return
+     */
+    IPage<NewsVO> selectPublishedNewsList(IPage page, @Param(Constants.WRAPPER) Wrapper wrapper);
 }

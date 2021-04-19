@@ -2,7 +2,6 @@ package com.peng.news.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.peng.news.model.enums.NewsStatus;
-import com.peng.news.model.po.NewsColumnPO;
 import com.peng.news.model.po.UserPO;
 import lombok.Data;
 
@@ -30,7 +29,7 @@ public class NewsVO {
     /**
      * 多对一关系，新闻所属的新闻栏目
      */
-    NewsColumnPO column;
+    NewsColumnVO column;
 
     /**
      * 新闻图片来源
@@ -59,6 +58,7 @@ public class NewsVO {
     /**
      * 设置轮播的时机
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     Timestamp setCarouselTime;
 
     /**
@@ -69,6 +69,7 @@ public class NewsVO {
     /**
      * 设置为头条的时机
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     Timestamp setHeadlinesTime;
 
     /**
@@ -84,6 +85,7 @@ public class NewsVO {
     /**
      * 新闻设置置顶的时机
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     Timestamp setTopTime;
 
     /**
@@ -158,6 +160,7 @@ public class NewsVO {
     /**
      * 新闻实际的发布时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     Timestamp realPubTime;
 
     /**

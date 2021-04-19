@@ -19,4 +19,6 @@ public interface NewsColumnMapper extends BaseMapper<NewsColumnPO> {
      * @return
      */
     List<NewsColumnVO> getChildrenNewsColumnListByParentId(Integer parentId);
+
+    NewsColumnVO selectTitleAndWithParentById(Integer colId);
 }

@@ -44,6 +44,11 @@
         <association property="latestEditor" column="latest_editor_id" select="com.peng.news.mapper.UserMapper.selectNameById"/>
     </resultMap>
 
+    <resultMap id="ResultMapWithColumnAndPublisher" type="newsVO" extends="BaseResultMap">
+        <association property="column" column="column_id" select="com.peng.news.mapper.NewsColumnMapper.selectTitleAndWithParentById"/>
+        <association property="publisher" column="publisher_id" select="com.peng.news.mapper.UserMapper.selectNameById"/>
+    </resultMap>
+
     <select id="selectTransitNewsPage" resultMap="ResultMapWithInputterAndLatestEditor">
         select id, title, external_url, news_status, editors, latest_editor_id, latest_edit_time, inputter_id, complete_input_time
         from news
@@ -58,6 +63,12 @@
 
     <select id="selectUnpublishedNewsList" resultMap="BaseResultMap">
         select id, title, news_status, img_source, article_source, external_url, editors, reviewers, previous_epoch_review_pass_time, show_pub_time
+        from news
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectPublishedNewsList" resultMap="ResultMapWithColumnAndPublisher">
+        select id, title, external_url, column_id, is_top, set_top_time, is_carousel, set_carousel_time, is_headlines, set_headlines_time, publisher_id, real_pub_time, real_reading_count
         from news
         ${ew.customSqlSegment}
     </select>

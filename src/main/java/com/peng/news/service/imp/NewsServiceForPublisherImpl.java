@@ -10,8 +10,7 @@ import com.peng.news.mapper.NewsMapper;
 import com.peng.news.model.CustomizedPage;
 import com.peng.news.model.dto.ReModificationInfoDTO;
 import com.peng.news.model.enums.NewsStatus;
-import com.peng.news.model.paramBean.NewsBeanForPublisherPub;
-import com.peng.news.model.paramBean.QueryUnpublishedNewsBeanForPublisher;
+import com.peng.news.model.paramBean.*;
 import com.peng.news.model.po.NewsColumnPO;
 import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.po.UserPO;
@@ -27,6 +26,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -149,6 +149,130 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         return true;
     }
 
+    @Override
+    public CustomizedPage<NewsVO> publishedNewsList(Integer page, Integer pageSize, QueryPublishedNewsBeanForPublisher queryBean) {
+        //处理分页
+        page = page == null || page <= 0 ? 1 : page;
+        pageSize = pageSize == null || pageSize < 0 ? 0 : pageSize;
+
+        QueryWrapper<NewsPO> queryWrapper = new QueryWrapper<>();
+        //必要条件：必须是已发布新闻
+        queryWrapper.eq("news_status", NewsStatus.PUBLISHED.getCode());
+
+        queryBean.trimOrSetNull();
+        //条件查询
+        queryWrapper.like(queryBean.getTitle() != null, "title", queryBean.getTitle());
+        queryWrapper.like(queryBean.getExternalUrl() != null, "external_url", queryBean.getExternalUrl());
+        queryWrapper.eq(queryBean.getPublisherId() != null, "publisher_id", queryBean.getPublisherId());
+        queryWrapper.eq(queryBean.getIsCarousel() != null, "is_carousel", queryBean.getIsCarousel());
+        queryWrapper.eq(queryBean.getIsTop() != null, "is_top", queryBean.getIsTop());
+        queryWrapper.eq(queryBean.getIsHeadlines() != null, "is_headlines", queryBean.getIsHeadlines());
+        Integer columnId = queryBean.getColumnId();
+        if(columnId != null) {
+            //如果要按新闻栏目查询，首先看该栏目有没有子栏目
+            List<Object> childIdList = newsColumnMapper.selectObjs(new QueryWrapper<NewsColumnPO>().select("id").eq("parent_id", columnId));
+            if(childIdList.size() != 0) {
+                //有子栏目，查询出当前栏目+所有子栏目的新闻
+                childIdList.add(columnId);
+                queryWrapper.in("column_id", childIdList);
+            }else {
+                queryWrapper.eq("column_id", columnId);
+            }
+        }
+
+        //排序
+        SingleColumnOrderRule orderRule = queryBean.getOrderRule();
+        if(orderRule.isAsc()) {
+            queryWrapper.orderByAsc(orderRule.getColumn());
+        }else {
+            queryWrapper.orderByDesc(orderRule.getColumn());
+        }
+
+        //构造分页对象
+        IPage pageObj = new Page(page, pageSize);
+
+        IPage<NewsVO> selectPage = newsMapper.selectPublishedNewsList(pageObj, queryWrapper);
+        return CustomizedPage.fromIPage(selectPage);
+    }
+
+    @Override
+    public boolean revokePub(int newsId) {
+        //确保新闻存在，且是已发布的
+        assertNewsExistsAndPublished(newsId);
+        UpdateWrapper<NewsPO> updateWrapper = new UpdateWrapper<>();
+        //按照id更新
+        updateWrapper.eq("id", newsId);
+        updateWrapper.set("column_id", null);
+        updateWrapper.set("news_status", NewsStatus.REVOKE_PUBLISHED.getCode());
+        setTopStatus(updateWrapper, false);
+        setHeadlinesStatus(updateWrapper, false);
+        setCarouselStatus(updateWrapper, false, null);
+        updateWrapper.set("is_image_news", false);
+        updateWrapper.set("publisher_id", null);
+        updateWrapper.set("real_pub_time", null);
+        updateWrapper.set("show_pub_time", null);
+        updateWrapper.set("init_reading_count", 0);
+        //执行更新
+        newsMapper.update(null, updateWrapper);
+        return true;
+    }
+
+    @Override
+    public NewsPO topManage(int newsId, int tag) {
+        if(tag != 1 && tag != 2) {
+            throw new RuntimeException("非法请求，请求参数出错！");
+        }
+
+        assertNewsExistsAndPublished(newsId);
+
+        UpdateWrapper<NewsPO> updateWrapper = new UpdateWrapper<>();
+        //按照id更新
+        updateWrapper.eq("id", newsId);
+        setTopStatus(updateWrapper, tag == 1);
+
+        newsMapper.update(null, updateWrapper);
+
+        //查询出设置新闻的时间并返回
+        return newsMapper.selectOne(new QueryWrapper<NewsPO>().select("set_top_time").eq("id", newsId));
+    }
+
+    @Override
+    public NewsPO headlinesManage(int newsId, int tag) {
+        if(tag != 1 && tag != 2) {
+            throw new RuntimeException("非法请求，请求参数出错！");
+        }
+
+        assertNewsExistsAndPublished(newsId);
+
+        UpdateWrapper<NewsPO> updateWrapper = new UpdateWrapper<>();
+        //按照id更新
+        updateWrapper.eq("id", newsId);
+        setHeadlinesStatus(updateWrapper, tag == 1);
+
+        newsMapper.update(null, updateWrapper);
+
+        //查询出设置头条的时间并返回
+        return newsMapper.selectOne(new QueryWrapper<NewsPO>().select("set_headlines_time").eq("id", newsId));
+    }
+
+    @Override
+    public NewsPO carouselManage(int newsId, CarouselParamBean paramBean) {
+        //对参数进行格式化和校验
+        paramBean.formatAndValidate();
+
+        assertNewsExistsAndPublished(newsId);
+
+        UpdateWrapper<NewsPO> updateWrapper = new UpdateWrapper<>();
+        //按照id更新
+        updateWrapper.eq("id", newsId);
+        setCarouselStatus(updateWrapper, paramBean.getIsCarousel(), paramBean.getImgUrlForCarousel());
+
+        newsMapper.update(null, updateWrapper);
+
+        //查询出设置轮播的时间并返回
+        return newsMapper.selectOne(new QueryWrapper<NewsPO>().select("set_carousel_time").eq("id", newsId));
+    }
+
 
     /**
      * 确定新闻存在，并且属于 待发布 状态
@@ -167,6 +291,23 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         }
     }
 
+    /**
+     * 确定新闻存在，并且属于 已发布 状态
+     * @param newsId
+     */
+    private void assertNewsExistsAndPublished(Integer newsId) {
+        if(newsId == null){
+            throw new RuntimeException("已发布站中不存在此新闻，操作失败！");
+        }
+
+        QueryWrapper<NewsPO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", newsId).eq("news_status", NewsStatus.PUBLISHED.getCode());
+
+        if(newsMapper.selectCount(queryWrapper) == 0) {
+            throw new RuntimeException("已发布站中不存在此新闻，操作失败！");
+        }
+    }
+
 
     /**
      * 设置新闻的置顶状态
@@ -178,6 +319,9 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         if(isTop) {
             //如果置顶，则更新 设置置顶的时机
             updateWrapper.set("set_top_time", new Timestamp(Instant.now().toEpochMilli()));
+        }else {
+            //不置顶，则设为null
+            updateWrapper.set("set_top_time", null);
         }
     }
 
@@ -191,6 +335,8 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         if(isHeadlines) {
             //如果设为头条，则更新 设置头条的时机
             updateWrapper.set("set_headlines_time", new Timestamp(Instant.now().toEpochMilli()));
+        }else {
+            updateWrapper.set("set_headlines_time", null);
         }
     }
 
@@ -210,6 +356,9 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
             Map map = new HashMap();
             map.put(Constants.CAROUSEL_IMAGE_URL_KEY, imgUrlForCarousel);
             updateWrapper.set("extra", JSON.toJSONString(map));
+        }else {
+            updateWrapper.set("set_carousel_time", null);
+            updateWrapper.set("extra", null);
         }
     }
 }

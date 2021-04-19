@@ -38,4 +38,9 @@ public class NewsColumnVO {
      * 子栏目列表
      */
     List<NewsColumnVO> children;
+
+    /**
+     * 父栏目
+     */
+    NewsColumnVO parent;
 }

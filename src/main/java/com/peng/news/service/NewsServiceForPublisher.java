@@ -1,8 +1,11 @@
 package com.peng.news.service;
 
 import com.peng.news.model.CustomizedPage;
+import com.peng.news.model.paramBean.CarouselParamBean;
 import com.peng.news.model.paramBean.NewsBeanForPublisherPub;
+import com.peng.news.model.paramBean.QueryPublishedNewsBeanForPublisher;
 import com.peng.news.model.paramBean.QueryUnpublishedNewsBeanForPublisher;
+import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsVO;
 
 /**
@@ -37,4 +40,44 @@ public interface NewsServiceForPublisher {
      * @return
      */
     boolean publishOneNews(Integer newsId, NewsBeanForPublisherPub pubInfo);
+
+    /**
+     * 分页、条件查询 已发布 新闻列表
+     * @param page
+     * @param pageSize
+     * @param queryBean
+     * @return
+     */
+    CustomizedPage<NewsVO> publishedNewsList(Integer page, Integer pageSize, QueryPublishedNewsBeanForPublisher queryBean);
+
+    /**
+     * 撤销发布新闻
+     * @param newsId
+     * @return
+     */
+    boolean revokePub(int newsId);
+
+    /**
+     * 新闻置顶管理
+     * @param newsId
+     * @param tag 1-设为置顶；2-取消置顶；3-非法请求
+     * @return 更新之后的新闻信息
+     */
+    NewsPO topManage(int newsId, int tag);
+
+    /**
+     * 新闻是否设为头条
+     * @param newsId
+     * @param tag 1-设为头条；2-取消设为头条；3-非法请求
+     * @return 更新之后的新闻信息
+     */
+    NewsPO headlinesManage(int newsId, int tag);
+
+    /**
+     * 对新闻是否轮播进行管理
+     * @param newsId
+     * @param paramBean 轮播设置信息
+     * @return 更新之后的新闻信息
+     */
+    NewsPO carouselManage(int newsId, CarouselParamBean paramBean);
 }
