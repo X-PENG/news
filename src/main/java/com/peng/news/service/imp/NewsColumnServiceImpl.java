@@ -3,7 +3,9 @@ package com.peng.news.service.imp;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.peng.news.mapper.NewsColumnMapper;
+import com.peng.news.mapper.NewsMapper;
 import com.peng.news.model.po.NewsColumnPO;
+import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsColumnVO;
 import com.peng.news.service.NewsColumnService;
 import com.peng.news.util.StringUtils;
@@ -26,6 +28,9 @@ public class NewsColumnServiceImpl implements NewsColumnService {
 
     @Autowired
     NewsColumnMapper newsColumnMapper;
+
+    @Autowired
+    NewsMapper newsMapper;
 
     @Override
     public List<NewsColumnPO> getAllColumnsByParentId(Integer parentId) {
@@ -226,10 +231,9 @@ public class NewsColumnServiceImpl implements NewsColumnService {
      * @return false：没有新闻，可以删除或关闭栏目；true：有新闻，不能删除或关闭
      */
     boolean hasNews(Integer newsColId){
-        /**
-         * todo 查询 新闻表
-         */
-        return false;
+        QueryWrapper<NewsPO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("column_id", newsColId);
+        return newsMapper.selectCount(queryWrapper) != 0;
     }
 
     /**

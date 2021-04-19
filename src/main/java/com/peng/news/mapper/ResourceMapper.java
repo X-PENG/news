@@ -13,15 +13,9 @@ import java.util.List;
  */
 public interface ResourceMapper extends BaseMapper<ResourcePO> {
 
-    /**
-     *
-     * todo 思考是一次连接查询好还是多次嵌套查询好
-     * @return
-     */
     List<ResourceVO> getAllMenuByParentId(Integer parentId);
 
     /**
-     * todo 思考是一次连接查询好还是多次嵌套查询好
      * 得到所有的资源及对应的角色列表
      * @return
      */

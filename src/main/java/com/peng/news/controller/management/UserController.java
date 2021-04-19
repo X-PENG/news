@@ -36,7 +36,6 @@ public class UserController {
 
     /**
      * 分页条件查询用户列表
-     * todo 条件查询
      * @param page
      * @param pageSize
      * @return
