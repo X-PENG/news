@@ -207,6 +207,8 @@ public class NewsServiceForEditorImpl implements NewsServiceForEditor {
         if(systemConfigService.getCurReviewLevel() == 0) {
             //如果没有开启审核，则新闻变成待发布状态
             updateWrapper.set("news_status", NewsStatus.TO_BE_RELEASED.getCode());
+            //新闻变成待发布，说明审核通过了，则将previous_epoch_review_pass_time字段设为当前时间
+            updateWrapper.set("previous_epoch_review_pass_time", new Timestamp(Instant.now().toEpochMilli()));
         }else {
             //状态改为 审核中
             updateWrapper.set("news_status", NewsStatus.UNDER_REVIEW.getCode());
