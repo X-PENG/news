@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.peng.news.mapper.NewsColumnMapper;
 import com.peng.news.mapper.NewsMapper;
+import com.peng.news.model.enums.NewsStatus;
 import com.peng.news.model.po.NewsColumnPO;
 import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsColumnVO;
@@ -226,13 +227,13 @@ public class NewsColumnServiceImpl implements NewsColumnService {
     }
 
     /**
-     * 判断该新闻栏目下是否有新闻
+     * 判断该新闻栏目下是否发布了新闻
      * @param newsColId 新闻栏目id
-     * @return false：没有新闻，可以删除或关闭栏目；true：有新闻，不能删除或关闭
+     * @return false：没有发布新闻，可以删除或关闭栏目；true：发布了新闻，不能删除或关闭
      */
     boolean hasNews(Integer newsColId){
         QueryWrapper<NewsPO> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("column_id", newsColId);
+        queryWrapper.eq("column_id", newsColId).eq("news_status", NewsStatus.PUBLISHED.getCode());
         return newsMapper.selectCount(queryWrapper) != 0;
     }
 
