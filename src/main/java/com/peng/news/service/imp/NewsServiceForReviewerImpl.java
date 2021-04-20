@@ -175,6 +175,7 @@ public class NewsServiceForReviewerImpl implements NewsServiceForReviewer {
         updateWrapper.eq("id", newsId);
         //都会更新的内容
         updateWrapper.set("title", news.getTitle());
+        updateWrapper.set("article_fragment_for_show", news.getArticleFragmentForShow());
         updateWrapper.set("content", news.getContent());
         updateWrapper.set("img_source", news.getImgSource());
         updateWrapper.set("article_source", news.getArticleSource());
