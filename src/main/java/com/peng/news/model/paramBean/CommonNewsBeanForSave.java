@@ -23,7 +23,7 @@ public abstract class CommonNewsBeanForSave {
     /**
      * 用于新闻列表显示的文章片段
      */
-    String articleFragmentForShow;
+    protected String articleFragmentForShow;
 
     /**
      * 正文

@@ -198,8 +198,6 @@ public class NewsServiceForEditorImpl implements NewsServiceForEditor {
         updateWrapper.set("current_review_epoch", 1);
         //将reviewers设为null，表示还没有人参与审核
         updateWrapper.set("reviewers", null);
-        //清空脏数据
-        updateWrapper.set("previous_epoch_review_pass_time", null);
         //extra设为null，清空脏数据
         updateWrapper.set("extra", null);
 
@@ -212,6 +210,8 @@ public class NewsServiceForEditorImpl implements NewsServiceForEditor {
         }else {
             //状态改为 审核中
             updateWrapper.set("news_status", NewsStatus.UNDER_REVIEW.getCode());
+            //清空脏数据
+            updateWrapper.set("previous_epoch_review_pass_time", null);
         }
     }
 
@@ -235,6 +235,7 @@ public class NewsServiceForEditorImpl implements NewsServiceForEditor {
         updateWrapper.eq("id", newsId);
         //都会更新的内容
         updateWrapper.set("title", news.getTitle());
+        updateWrapper.set("article_fragment_for_show", news.getArticleFragmentForShow());
         updateWrapper.set("content", news.getContent());
         updateWrapper.set("img_source", news.getImgSource());
         updateWrapper.set("article_source", news.getArticleSource());
