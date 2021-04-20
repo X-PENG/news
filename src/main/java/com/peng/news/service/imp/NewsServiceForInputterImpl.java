@@ -104,6 +104,7 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
         UpdateWrapper<NewsPO> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", news.getId());
         updateWrapper.set("title", news.getTitle());
+        updateWrapper.set("article_fragment_for_show", news.getArticleFragmentForShow());
         updateWrapper.set("content", news.getContent());
         updateWrapper.set("img_source", news.getImgSource());
         updateWrapper.set("article_source", news.getArticleSource());
