@@ -22,6 +22,11 @@ public class NewsVO {
     String title;
 
     /**
+     * 用于新闻列表显示的文章片段
+     */
+    String articleFragmentForShow;
+
+    /**
      * 正文
      */
     String content;
