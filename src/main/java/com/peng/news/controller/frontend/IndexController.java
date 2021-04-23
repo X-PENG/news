@@ -41,4 +41,14 @@ public class IndexController {
     public Result<NewsPO> getHeadLines(){
         return Result.success(frontendIndexService.getHeadLines());
     }
+
+    /**
+     * 查询轮播新闻
+     * @amount 获取轮播新闻的数量
+     * @return
+     */
+    @GetMapping("/carouselNews")
+    public Result<List<NewsPO>> carouselNewsList(Integer amount) {
+        return Result.success(frontendIndexService.carouselNewsList(amount));
+    }
 }

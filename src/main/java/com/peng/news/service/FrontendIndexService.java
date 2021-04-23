@@ -21,4 +21,6 @@ public interface FrontendIndexService {
     List<NewsColumnVO> allEnabledOneLevelColsOrderByMenuOrder();
 
     NewsPO getHeadLines();
+
+    List<NewsPO> carouselNewsList(Integer amount);
 }
