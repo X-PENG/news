@@ -211,7 +211,7 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         updateWrapper.set("is_image_news", false);
         updateWrapper.set("publisher_id", null);
         updateWrapper.set("real_pub_time", null);
-        updateWrapper.set("show_pub_time", null);
+//        updateWrapper.set("show_pub_time", null);//不设为null，用于下次发布时的默认时间
         updateWrapper.set("init_reading_count", 0);
         updateWrapper.set("img_for_show_on_news_list", null);
         //执行更新
