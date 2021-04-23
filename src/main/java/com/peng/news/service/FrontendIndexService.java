@@ -1,5 +1,6 @@
 package com.peng.news.service;
 
+import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsColumnVO;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface FrontendIndexService {
      * @return
      */
     List<NewsColumnVO> allEnabledOneLevelColsOrderByMenuOrder();
+
+    NewsPO getHeadLines();
 }

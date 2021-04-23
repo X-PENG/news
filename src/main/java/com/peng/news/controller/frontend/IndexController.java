@@ -1,6 +1,7 @@
 package com.peng.news.controller.frontend;
 
 import com.peng.news.model.Result;
+import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsColumnVO;
 import com.peng.news.service.FrontendIndexService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,5 +31,14 @@ public class IndexController {
     @GetMapping("/cols")
     public Result<List<NewsColumnVO>> allEnabledOneLevelColsOrderByMenuOrder() {
         return Result.success(frontendIndexService.allEnabledOneLevelColsOrderByMenuOrder());
+    }
+
+    /**
+     * 查询新闻头条
+     * @return
+     */
+    @GetMapping("/headlines")
+    public Result<NewsPO> getHeadLines(){
+        return Result.success(frontendIndexService.getHeadLines());
     }
 }
