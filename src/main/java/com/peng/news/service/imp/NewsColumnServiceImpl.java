@@ -199,12 +199,12 @@ public class NewsColumnServiceImpl implements NewsColumnService {
     @Override
     public List<NewsColumnVO> newsColumnSelectData() {
         //获得所有一级栏目
-        List<NewsColumnVO> list = newsColumnMapper.getChildrenNewsColumnListByParentId(null);
+        List<NewsColumnVO> list = newsColumnMapper.getEnabledChildrenNewsColumnListByParentId(null);
         List<NewsColumnVO> returnList = new ArrayList<>();
         for (NewsColumnVO newsColumnVO : list) {
             if(newsColumnVO.getIsHasChildren()) {
                 //查询子栏目列表
-                newsColumnVO.setChildren(newsColumnMapper.getChildrenNewsColumnListByParentId(newsColumnVO.getId()));
+                newsColumnVO.setChildren(newsColumnMapper.getEnabledChildrenNewsColumnListByParentId(newsColumnVO.getId()));
                 /**
                  * 如果该栏目有子栏目，就创建一个不包含子栏目的副本，并添加到集合中，目的是：
                  * 解决element-ui的级联选择器不能选择父节点的问题

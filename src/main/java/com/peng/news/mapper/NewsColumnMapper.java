@@ -14,11 +14,11 @@ import java.util.List;
 public interface NewsColumnMapper extends BaseMapper<NewsColumnPO> {
 
     /**
-     * 通过父栏目id，查询子栏目列表
+     * 通过父栏目id，查询已开启的子栏目列表
      * @param parentId
      * @return
      */
-    List<NewsColumnVO> getChildrenNewsColumnListByParentId(Integer parentId);
+    List<NewsColumnVO> getEnabledChildrenNewsColumnListByParentId(Integer parentId);
 
     NewsColumnVO selectTitleAndWithParentById(Integer colId);
 

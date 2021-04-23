@@ -29,7 +29,7 @@
         </association>
     </resultMap>
 
-    <select id="getChildrenNewsColumnListByParentId" resultMap="BaseResultMap">
+    <select id="getEnabledChildrenNewsColumnListByParentId" resultMap="BaseResultMap">
        <!-- 新闻栏目必须开启 -->
         select t1.id id, title, is_has_children
         from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
@@ -42,6 +42,7 @@
                 parent_id=#{parentId}
             </otherwise>
         </choose>
+        order by t2.menu_order
     </select>
 
     <select id="selectTitleAndWithParentById" resultMap="ResultMapWithParentCol">
