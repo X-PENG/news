@@ -5,6 +5,7 @@ import com.peng.news.model.vo.NewsColumnVO;
 import java.util.List;
 
 /**
+ * 门户网站的首页相关服务
  * @author PENG
  * @version 1.0
  * @date 2021/4/23 16:33
