@@ -70,7 +70,7 @@
     </select>
 
     <select id="selectPublishedNewsList" resultMap="ResultMapWithColumnAndPublisher">
-        select id, title, external_url, column_id, is_top, set_top_time, is_carousel, set_carousel_time, is_headlines, set_headlines_time, publisher_id, real_pub_time, real_reading_count
+        select id, title, external_url, column_id, is_top, set_top_time, is_carousel, set_carousel_time, is_headlines, set_headlines_time, publisher_id, real_pub_time, real_reading_count, extra
         from news
         ${ew.customSqlSegment}
     </select>
