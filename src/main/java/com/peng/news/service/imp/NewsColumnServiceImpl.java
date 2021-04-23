@@ -95,6 +95,9 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         }
 
         newsColumnMapper.deleteById(newsColId);
+
+        //删除设置信息
+        newsColSettingsMapper.delete(new QueryWrapper<NewsColSettingsPO>().eq("col_id", newsColId));
         return true;
     }
 
