@@ -138,6 +138,7 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         Timestamp now = new Timestamp(Instant.now().toEpochMilli());
         updateWrapper.set("show_pub_time", pubInfo.getShowPubTime() == null ? now : pubInfo.getShowPubTime());
         updateWrapper.set("init_reading_count", pubInfo.getInitReadingCount());
+        updateWrapper.set("img_for_show_on_news_list", pubInfo.getImgForShowOnNewsList());
         //设置发布人为当前用户
         updateWrapper.set("publisher_id", UserUtils.getUser().getId());
         //设置实际发布时间
@@ -212,6 +213,7 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         updateWrapper.set("real_pub_time", null);
         updateWrapper.set("show_pub_time", null);
         updateWrapper.set("init_reading_count", 0);
+        updateWrapper.set("img_for_show_on_news_list", null);
         //执行更新
         newsMapper.update(null, updateWrapper);
         return true;

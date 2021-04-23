@@ -180,6 +180,11 @@ public class NewsVO {
     Integer initReadingCount;
 
     /**
+     * 当前新闻显示在新闻列表上的图片
+     */
+    String imgForShowOnNewsList;
+
+    /**
      * 新闻实际阅读量
      */
     Integer realReadingCount;

@@ -78,6 +78,10 @@ public class NewsBeanForPublisherPub {
      */
     boolean headlines;
 
+    /**
+     * 在新闻列表上显示的图片地址
+     */
+    String imgForShowOnNewsList;
 
     /**
      * 格式化信息
@@ -107,6 +111,10 @@ public class NewsBeanForPublisherPub {
         if(imgUrlForCarousel == null || "".equals(imgUrlForCarousel = imgUrlForCarousel.trim())) {
             imgUrlForCarousel = null;
         }
+
+        if(imgForShowOnNewsList == null || "".equals(imgForShowOnNewsList = imgForShowOnNewsList.trim())) {
+            imgForShowOnNewsList = null;
+        }
     }
 
     private void validate() {
@@ -121,6 +129,10 @@ public class NewsBeanForPublisherPub {
             }else if(!ValidateUrlUtils.validateUrl(imgUrlForCarousel)) {
                 throw new RuntimeException("图片地址不规范，请正确设置轮播图地址！");
             }
+        }
+
+        if(imgForShowOnNewsList != null && !ValidateUrlUtils.validateUrl(imgForShowOnNewsList)) {
+            throw new RuntimeException("图片地址不规范，请正确设置在新闻列表上显示的图片地址！");
         }
     }
 }
