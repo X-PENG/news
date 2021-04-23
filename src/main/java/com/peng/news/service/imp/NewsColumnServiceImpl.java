@@ -2,14 +2,17 @@ package com.peng.news.service.imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.peng.news.mapper.NewsColSettingsMapper;
 import com.peng.news.mapper.NewsColumnMapper;
 import com.peng.news.mapper.NewsMapper;
 import com.peng.news.model.enums.NewsStatus;
+import com.peng.news.model.po.NewsColSettingsPO;
 import com.peng.news.model.po.NewsColumnPO;
 import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsColumnVO;
 import com.peng.news.service.NewsColumnService;
 import com.peng.news.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ import java.util.List;
  * @version 1.0
  * @date 2021/4/9 12:43
  */
+@Slf4j
 @Service
 public class NewsColumnServiceImpl implements NewsColumnService {
 
@@ -33,40 +37,41 @@ public class NewsColumnServiceImpl implements NewsColumnService {
     @Autowired
     NewsMapper newsMapper;
 
+    @Autowired
+    NewsColSettingsMapper newsColSettingsMapper;
+
     @Override
-    public List<NewsColumnPO> getAllColumnsByParentId(Integer parentId) {
-        QueryWrapper<NewsColumnPO> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByAsc("menu_order", "create_time");
-        //按parent_id查询所有开启了的新闻栏目
-        if(parentId == null){
-            queryWrapper.isNull("parent_id");
-        }else{
-            queryWrapper.eq("parent_id", parentId);
-        }
-        return newsColumnMapper.selectList(queryWrapper);
+    public List<NewsColumnVO> getAllColumnsByParentId(Integer parentId) {
+        return newsColumnMapper.columnListWithSettingsByParentId(parentId);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Integer addNewsColumn(NewsColumnPO newsColumnPO) {
-        //信息完整性、合法性校验
-        validateInfo(newsColumnPO);
-        //保证title不重复
-        assertTitleNotExists(newsColumnPO.getTitle(), null);
-        String externalLink = newsColumnPO.getExternalLink();
-        newsColumnPO.setExternalLink(StringUtils.isNotEmpty(externalLink) ? externalLink : null);
-        String description = newsColumnPO.getDescription();
-        newsColumnPO.setDescription(StringUtils.isNotEmpty(description) ? description : null);
-        newsColumnPO.setId(null);
-        newsColumnPO.setModuleOrder(null);
-        newsColumnPO.setEnabled(null);
-        newsColumnPO.setIsHasChildren(null);
-        //如果有parent_id
-        if(newsColumnPO.getParentId() != null){
+    public Integer addNewsColumn(NewsColumnVO newsColumnVO) {
+        //信息完整性、合法性校验以及格式化信息
+        validateInfoAndFormat(newsColumnVO);
+        //格式化完之后，保证title不重复
+        assertTitleNotExists(newsColumnVO.getTitle(), null);
+
+        //处理parent_id
+        Integer parentId = newsColumnVO.getParentId();
+        if(parentId != null){
             //把parent_id这个栏目设为父栏目
-            operateParentNewsCol(newsColumnPO.getParentId(), false);
+            operateParentNewsCol(parentId, false);
         }
+
+        //插入栏目基本信息
+        NewsColumnPO newsColumnPO = new NewsColumnPO();
+        newsColumnPO.setTitle(newsColumnVO.getTitle());
+        newsColumnPO.setDescription(newsColumnVO.getDescription());
+        newsColumnPO.setParentId(newsColumnVO.getParentId());
+        newsColumnPO.setExternalLink(newsColumnVO.getExternalLink());
         newsColumnMapper.insert(newsColumnPO);
+
+        //插入栏目设置信息
+        NewsColSettingsPO newsColSettingsPO = new NewsColSettingsPO();
+        newsColSettingsPO.setColId(newsColumnPO.getId());
+        newsColSettingsMapper.insert(newsColSettingsPO);
 
         return newsColumnPO.getId();
     }
@@ -95,22 +100,24 @@ public class NewsColumnServiceImpl implements NewsColumnService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updateNewsColumn(NewsColumnPO newsColumnPO) {
-        //信息完整性、合法性校验
-        validateInfo(newsColumnPO);
+    public boolean updateNewsColumn(NewsColumnVO newsColumnVO) {
+        Integer columnVOId = newsColumnVO.getId();
 
-        NewsColumnPO queryResult = assertNewsColExists(newsColumnPO.getId(), NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
+        //确保要更新的新闻栏目存在
+        NewsColumnPO queryResult = assertNewsColExists(columnVOId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
 
-        if(newsColumnPO.getId().equals(newsColumnPO.getParentId())){
+        if(columnVOId.equals(newsColumnVO.getParentId())){
             throw new RuntimeException("自己不能作为自己的父栏目，操作失败！");
         }
 
-        UpdateWrapper<NewsColumnPO> updateWrapper = new UpdateWrapper<NewsColumnPO>().eq("id", newsColumnPO.getId());
-        //保证title不重复
-        assertTitleNotExists(newsColumnPO.getTitle(), newsColumnPO.getId());
+        //信息完整性、合法性校验以及格式化
+        validateInfoAndFormat(newsColumnVO);
+
+        //格式化后，保证title不重复
+        assertTitleNotExists(newsColumnVO.getTitle(), newsColumnVO.getId());
 
         //处理父栏目
-        Integer newParentId = newsColumnPO.getParentId();
+        Integer newParentId = newsColumnVO.getParentId();
         Integer oldParentId = queryResult.getParentId();
         if(oldParentId != null && !oldParentId.equals(newParentId)){
             //将原父栏目取消设置为父栏目
@@ -122,21 +129,38 @@ public class NewsColumnServiceImpl implements NewsColumnService {
             operateParentNewsCol(newParentId, false);
         }
 
-        newsColumnPO.setParentId(null);
+        //按照id更新栏目基本信息
+        UpdateWrapper<NewsColumnPO> updateWrapper = new UpdateWrapper<NewsColumnPO>().eq("id", columnVOId);
+        updateWrapper.set("title", newsColumnVO.getTitle());
         updateWrapper.set("parent_id", newParentId);
-        updateWrapper.set("module_order", newsColumnPO.getModuleOrder());
-        String externalLink = newsColumnPO.getExternalLink();
-        newsColumnPO.setExternalLink(null);
-        updateWrapper.set("external_link", StringUtils.isNotEmpty(externalLink) ? externalLink : null);
-        String description = newsColumnPO.getDescription();
-        newsColumnPO.setDescription(null);
-        updateWrapper.set("description", StringUtils.isNotEmpty(description) ? description : null);
-        //避免更新如下信息
-        newsColumnPO.setIsHasChildren(null);
-        newsColumnPO.setEnabled(null);
-        newsColumnPO.setCreateTime(null);
+        updateWrapper.set("external_link", newsColumnVO.getExternalLink());
+        updateWrapper.set("description", newsColumnVO.getDescription());
+        //执行更新
+        newsColumnMapper.update(null, updateWrapper);
 
-        newsColumnMapper.update(newsColumnPO, updateWrapper);
+        //再来更新栏目设置信息
+        NewsColSettingsPO settings = newsColumnVO.getSettings();
+        //如果传递了设置信息
+        if(settings != null) {
+            if(existSettingsInfo(columnVOId)) {
+                //更新设置信息
+                UpdateWrapper<NewsColSettingsPO> settingsPOUpdateWrapper = new UpdateWrapper<>();
+                //查到了，就按栏目id更新
+                settingsPOUpdateWrapper.eq("col_id", columnVOId);
+                settingsPOUpdateWrapper.set("menu_order", settings.getMenuOrder());
+                settingsPOUpdateWrapper.set("module_order", settings.getModuleOrder());
+
+                //执行更新
+                newsColSettingsMapper.update(null, settingsPOUpdateWrapper);
+            }else {
+                //没有查到设置信息，就插入设置信息
+                NewsColSettingsPO newsColSettingsPO = new NewsColSettingsPO();
+                newsColSettingsPO.setColId(columnVOId);
+                newsColSettingsPO.setMenuOrder(settings.getMenuOrder());
+                newsColSettingsPO.setModuleOrder(settings.getModuleOrder());
+                newsColSettingsMapper.insert(newsColSettingsPO);
+            }
+        }
         return true;
     }
 
@@ -155,7 +179,16 @@ public class NewsColumnServiceImpl implements NewsColumnService {
             }
         }
 
-        newsColumnMapper.update(null, new UpdateWrapper<NewsColumnPO>().eq("id", newsColId).set("enabled", enabled));
+        if(existSettingsInfo(newsColId)) {
+            //存在就更新
+            newsColSettingsMapper.update(null, new UpdateWrapper<NewsColSettingsPO>().eq("col_id", newsColId).set("enabled", enabled));
+        }else {
+            //不存在就插入
+            NewsColSettingsPO newsColSettingsPO = new NewsColSettingsPO();
+            newsColSettingsPO.setColId(newsColId);
+            newsColSettingsPO.setEnabled(enabled);
+            newsColSettingsMapper.insert(newsColSettingsPO);
+        }
 
         return true;
     }
@@ -185,6 +218,27 @@ public class NewsColumnServiceImpl implements NewsColumnService {
             returnList.add(newsColumnVO);
         }
         return returnList;
+    }
+
+    @Override
+    public boolean changeNewsColShowImgStatus(Integer newsColId, boolean status) {
+        //确保栏目存在
+        assertNewsColExists(newsColId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
+        //确保该栏目的设置已存在
+        if(existSettingsInfo(newsColId)) {
+            //更新设置信息
+            UpdateWrapper<NewsColSettingsPO> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("col_id", newsColId);
+            updateWrapper.set("show_img_on_the_right", status);
+            newsColSettingsMapper.update(null, updateWrapper);
+        }else {
+            //不存在设置信息，就插入设置信息
+            NewsColSettingsPO newsColSettingsPO = new NewsColSettingsPO();
+            newsColSettingsPO.setColId(newsColId);
+            newsColSettingsPO.setShowImgOnTheRight(status);
+            newsColSettingsMapper.insert(newsColSettingsPO);
+        }
+        return true;
     }
 
 
@@ -234,7 +288,7 @@ public class NewsColumnServiceImpl implements NewsColumnService {
     boolean hasNews(Integer newsColId){
         QueryWrapper<NewsPO> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("column_id", newsColId).eq("news_status", NewsStatus.PUBLISHED.getCode());
-        return newsMapper.selectCount(queryWrapper) != 0;
+        return newsMapper.selectCount(queryWrapper) >= 1;
     }
 
     /**
@@ -271,13 +325,14 @@ public class NewsColumnServiceImpl implements NewsColumnService {
 
     /**
      * 信息完整性校验，title没有默认值，所以不能为null
-     * @param newsColumnPO
+     * @param newsColumnVO
      * @return
      */
-    boolean validateInfoIsComplete(NewsColumnPO newsColumnPO){
+    boolean validateInfoIsComplete(NewsColumnVO newsColumnVO){
         boolean validateResult = true;
         String msg = null;
-        if(newsColumnPO.getTitle() == null){
+        String title = newsColumnVO.getTitle();
+        if(title == null || "".equals(title.trim())){
             validateResult = false;
             msg = "栏目名称不能为空，操作失败！";
         }
@@ -290,21 +345,22 @@ public class NewsColumnServiceImpl implements NewsColumnService {
 
     /**
      * 信息合法性校验
-     * @param newsColumnPO
+     * @param newsColumnVO
      * @return
      */
-    boolean validateInfoIsLegality(NewsColumnPO newsColumnPO){
+    boolean validateInfoIsLegality(NewsColumnVO newsColumnVO){
         boolean validateResult = true;
+        //栏目的设置信息
+        NewsColSettingsPO settings = newsColumnVO.getSettings();
         String msg = null;
-        if("".equals(newsColumnPO.getTitle().trim())){
-            validateResult = false;
-            msg = "栏目名称不能为空，操作失败！";
-        }else if(newsColumnPO.getMenuOrder() != null && (newsColumnPO.getMenuOrder() < 1 || newsColumnPO.getMenuOrder() > 127)){
-            validateResult = false;
-            msg = "菜单序号必须在1~127之间，操作失败！";
-        }else if(newsColumnPO.getModuleOrder() != null && (newsColumnPO.getModuleOrder() < 1 && newsColumnPO.getModuleOrder() > 127)){
-            validateResult = false;
-            msg = "模块序号必须在1~127之间，操作失败！";
+        if(settings != null) {
+            if(settings.getMenuOrder() != null && (settings.getMenuOrder() < 1 || settings.getMenuOrder() > 127)){
+                validateResult = false;
+                msg = "菜单序号必须在1~127之间，操作失败！";
+            }else if(settings.getModuleOrder() != null && (settings.getModuleOrder() < 1 && settings.getModuleOrder() > 127)){
+                validateResult = false;
+                msg = "模块序号必须在1~127之间，操作失败！";
+            }
         }
 
         if (!validateResult){
@@ -313,9 +369,30 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         return true;
     }
 
-    boolean validateInfo(NewsColumnPO newsColumnPO){
-        validateInfoIsComplete(newsColumnPO);
-        validateInfoIsLegality(newsColumnPO);
+    boolean validateInfoAndFormat(NewsColumnVO newsColumnVO){
+        validateInfoIsComplete(newsColumnVO);
+        validateInfoIsLegality(newsColumnVO);
+
+        //校验成功，再格式化信息，修剪字符串两边空格
+        newsColumnVO.setTitle(newsColumnVO.getTitle().trim());
+        String externalLink = newsColumnVO.getExternalLink();
+        newsColumnVO.setExternalLink(!StringUtils.isNotEmpty(externalLink) ? null : externalLink.trim());
+        String description = newsColumnVO.getDescription();
+        newsColumnVO.setDescription(!StringUtils.isNotEmpty(description) ? null : description.trim());
         return true;
+    }
+
+    /**
+     * 判断该栏目是否存在设置信息
+     * @param newsColId
+     * @return
+     */
+    private boolean existSettingsInfo(int newsColId) {
+        Integer count = newsColSettingsMapper.selectCount(new QueryWrapper<NewsColSettingsPO>().eq("col_id", newsColId));
+        if(count < 1) {
+            log.warn("栏目[id=" + newsColId + "]不存在设置信息！");
+        }
+
+        return count >= 1;
     }
 }

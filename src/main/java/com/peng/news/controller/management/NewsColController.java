@@ -1,7 +1,7 @@
 package com.peng.news.controller.management;
 
 import com.peng.news.model.Result;
-import com.peng.news.model.po.NewsColumnPO;
+import com.peng.news.model.vo.NewsColumnVO;
 import com.peng.news.service.NewsColumnService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +31,7 @@ public class NewsColController {
      * @return
      */
     @GetMapping("/")
-    public Result<List<NewsColumnPO>> newsColList(){
+    public Result<List<NewsColumnVO>> newsColList(){
         return Result.success(newsColumnService.getAllColumnsByParentId(null));
     }
 
@@ -40,13 +40,13 @@ public class NewsColController {
      * @return
      */
     @GetMapping("/{newsColId}")
-    public Result<List<NewsColumnPO>> newsColList(@PathVariable Integer newsColId){
+    public Result<List<NewsColumnVO>> newsColList(@PathVariable Integer newsColId){
         return Result.success(newsColumnService.getAllColumnsByParentId(newsColId));
     }
 
     @PostMapping("/")
-    public Result addNewsCol(@RequestBody NewsColumnPO newsColumnPO){
-        newsColumnService.addNewsColumn(newsColumnPO);
+    public Result addNewsCol(@RequestBody NewsColumnVO newsColumnVO){
+        newsColumnService.addNewsColumn(newsColumnVO);
         return Result.success("添加成功！");
     }
 
@@ -57,8 +57,8 @@ public class NewsColController {
     }
 
     @PutMapping("/")
-    public Result updateNewsCol(@RequestBody NewsColumnPO newsColumnPO){
-        newsColumnService.updateNewsColumn(newsColumnPO);
+    public Result updateNewsCol(@RequestBody NewsColumnVO newsColumnVO){
+        newsColumnService.updateNewsColumn(newsColumnVO);
         return Result.success("修改成功！");
     }
 
@@ -66,5 +66,17 @@ public class NewsColController {
     public Result enableOrDisableNewsCol(@PathVariable Integer newsColId, boolean status){
         newsColumnService.enableOrDisableNewsColumn(newsColId, status);
         return Result.success(status ? "启用成功！" : "关闭成功！");
+    }
+
+    /**
+     * 修改新闻栏目显示图片的状态
+     * @param newsColId
+     * @param status
+     * @return
+     */
+    @PutMapping("/showImgStatus/{newsColId}")
+    public Result changeNewsColShowImgStatus(@PathVariable Integer newsColId, boolean status){
+        newsColumnService.changeNewsColShowImgStatus(newsColId, status);
+        return Result.success(status ? "成功设置右侧显示图片！" : "成功关闭右侧显示图片！");
     }
 }

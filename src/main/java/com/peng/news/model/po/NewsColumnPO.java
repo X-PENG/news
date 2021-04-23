@@ -24,13 +24,7 @@ public class NewsColumnPO {
 
     String description;
 
-    Integer menuOrder;
-
-    Integer moduleOrder;
-
     Integer parentId;
-
-    Boolean enabled;
 
     String externalLink;
 

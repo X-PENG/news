@@ -1,6 +1,5 @@
 package com.peng.news.service;
 
-import com.peng.news.model.po.NewsColumnPO;
 import com.peng.news.model.vo.NewsColumnVO;
 
 import java.util.List;
@@ -18,14 +17,14 @@ public interface NewsColumnService {
      * @param parentId
      * @return
      */
-    List<NewsColumnPO> getAllColumnsByParentId(Integer parentId);
+    List<NewsColumnVO> getAllColumnsByParentId(Integer parentId);
 
     /**
      * 添加新闻栏目
-     * @param newsColumnPO
+     * @param newsColumnVO
      * @return
      */
-    Integer addNewsColumn(NewsColumnPO newsColumnPO);
+    Integer addNewsColumn(NewsColumnVO newsColumnVO);
 
     /**
      * 删除新闻栏目
@@ -35,13 +34,17 @@ public interface NewsColumnService {
     boolean delNewsColumn(Integer newsColId);
 
     /**
-     * 修改新闻栏目信息，会更新：
-     * title, description, menuOrder, moduleOrder, parentId, externalLink
+     * 修改新闻栏目基本信息和设置信息，会更新：
+     * 新闻栏目表的：
+     *  title, description, parentId, externalLink
+     * 新闻栏目设置表的：
+     *  menuOrder, moduleOrder
+     *
      * 必须传递所有信息，如果menuOrder为null，则不更新menuOrder
-     * @param newsColumnPO
+     * @param newsColumnVO
      * @return
      */
-    boolean updateNewsColumn(NewsColumnPO newsColumnPO);
+    boolean updateNewsColumn(NewsColumnVO newsColumnVO);
 
 
     /**
@@ -57,4 +60,6 @@ public interface NewsColumnService {
      * @return
      */
     List<NewsColumnVO> newsColumnSelectData();
+
+    boolean changeNewsColShowImgStatus(Integer newsColId, boolean status);
 }

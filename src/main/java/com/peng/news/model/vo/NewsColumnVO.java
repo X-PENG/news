@@ -1,5 +1,7 @@
 package com.peng.news.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.peng.news.model.po.NewsColSettingsPO;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -18,18 +20,13 @@ public class NewsColumnVO {
 
     String description;
 
-    Integer menuOrder;
-
-    Integer moduleOrder;
-
     Integer parentId;
-
-    Boolean enabled;
 
     String externalLink;
 
     Boolean isHasChildren;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     Timestamp createTime;
 
     Timestamp updateTime;
@@ -43,4 +40,9 @@ public class NewsColumnVO {
      * 父栏目
      */
     NewsColumnVO parent;
+
+    /**
+     * 对应的设置信息。一对一关系
+     */
+    NewsColSettingsPO settings;
 }

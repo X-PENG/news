@@ -8,10 +8,7 @@
         <id property="id" column="id"/>
         <result property="title" column="title"/>
         <result property="description" column="description"/>
-        <result property="menuOrder" column="menu_order"/>
-        <result property="moduleOrder" column="module_order"/>
         <result property="parentId" column="parent_id"/>
-        <result property="enabled" column="enabled"/>
         <result property="externalLink" column="external_link"/>
         <result property="isHasChildren" column="is_has_children"/>
         <result property="createTime" column="create_time"/>
@@ -20,6 +17,16 @@
 
     <resultMap id="ResultMapWithParentCol" type="NewsColumnVO" extends="BaseResultMap">
         <association property="parent" column="parent_id" select="selectTitleAndWithParentById"/>
+    </resultMap>
+
+    <resultMap id="ResultMapWithSettings" type="NewsColumnVO" extends="BaseResultMap">
+        <association property="settings" javaType="NewsColSettingsPO">
+            <id property="id" column="settings_id"/>
+            <result property="enabled" column="enabled"/>
+            <result property="menuOrder" column="menu_order"/>
+            <result property="moduleOrder" column="module_order"/>
+            <result property="showImgOnTheRight" column="show_img_on_the_right"/>
+        </association>
     </resultMap>
 
     <select id="getChildrenNewsColumnListByParentId" resultMap="BaseResultMap">
@@ -41,5 +48,20 @@
         select id, title, parent_id
         from news_column
         where enabled = 1 and id=#{colId}
+    </select>
+
+    <select id="columnListWithSettingsByParentId" resultMap="ResultMapWithSettings">
+        select t1.id id, title, description, parent_id, external_link, is_has_children, t1.create_time create_time,t2.id settings_id, t2.enabled enabled, t2.menu_order menu_order, t2.module_order module_order, t2.show_img_on_the_right show_img_on_the_right
+        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
+        where
+        <choose>
+            <when test="parentId == null">
+                parent_id is null
+            </when>
+            <otherwise>
+                parent_id=#{parentId}
+            </otherwise>
+        </choose>
+        order by menu_order,create_time
     </select>
 </mapper>
