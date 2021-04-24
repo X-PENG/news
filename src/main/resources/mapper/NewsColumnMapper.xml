@@ -29,6 +29,14 @@
         </association>
     </resultMap>
 
+    <resultMap id="ResultMapWithParentAndSettings" type="NewsColumnVO" extends="BaseResultMap">
+        <association property="parent" column="parent_id" select="selectTitleAndWithParentById"/>
+        <association property="settings" javaType="NewsColSettingsPO">
+            <id property="id" column="settings_id"/>
+            <result property="showImgOnTheRight" column="show_img_on_the_right"/>
+        </association>
+    </resultMap>
+
     <select id="getEnabledChildrenNewsColumnListByParentId" resultMap="BaseResultMap">
        <!-- 新闻栏目必须开启 -->
         select t1.id id, title, is_has_children
@@ -64,5 +72,11 @@
             </otherwise>
         </choose>
         order by menu_order,create_time
+    </select>
+
+    <select id="selectEnabledColWithParentAndSettings" resultMap="ResultMapWithParentAndSettings">
+        select t1.id id, title, parent_id, t2.id settings_id, t2.show_img_on_the_right show_img_on_the_right
+        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
+        where t2.enabled = 1 and t1.id=#{colId}
     </select>
 </mapper>

@@ -28,4 +28,11 @@ public interface NewsColumnMapper extends BaseMapper<NewsColumnPO> {
      * @return
      */
     List<NewsColumnVO> columnListWithSettingsByParentId(Integer parentId);
+
+    /**
+     * 查询已开启的栏目，并且携带父栏目信息以及栏目设置信息
+     * @param colId
+     * @return
+     */
+    NewsColumnVO selectEnabledColWithParentAndSettings(Integer colId);
 }

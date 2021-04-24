@@ -30,6 +30,12 @@ public class NewsListServiceImpl implements NewsListService {
 
     @Override
     public NewsListDTO newsListByColId(int colId, Integer page, Integer pageSize) {
+        NewsColumnVO columnVO = newsColumnMapper.selectEnabledColWithParentAndSettings(colId);
+        if(columnVO == null) {
+            //栏目不存在或未开启
+            throw new RuntimeException("新闻栏目不存在！");
+        }
+
         //处理分页参数
         page = page == null || page < 1 ? 1 : page;
         pageSize = pageSize == null || pageSize < 0 ? 0 : pageSize;
@@ -47,11 +53,8 @@ public class NewsListServiceImpl implements NewsListService {
         IPage<NewsPO> selectPage = newsMapper.selectPage(pageObj, queryWrapper);
         CustomizedPage<NewsPO> customizedPage = CustomizedPage.fromIPage(selectPage);
 
-        //查询栏目信息，并且要带有父栏目
-        NewsColumnVO newsColumnVO = newsColumnMapper.selectTitleAndWithParentById(colId);
-
         NewsListDTO newsListDTO = new NewsListDTO();
-        newsListDTO.setColumn(newsColumnVO);
+        newsListDTO.setColumn(columnVO);
         newsListDTO.setNews(customizedPage);
 
         return newsListDTO;
