@@ -47,4 +47,12 @@ public interface NewsMapper extends BaseMapper<NewsPO> {
      * @return
      */
     IPage<NewsVO> selectPublishedNewsList(IPage page, @Param(Constants.WRAPPER) Wrapper wrapper);
+
+
+    /**
+     * 查询新闻，且携带栏目信息。使用Wrapper自定义sql查询
+     * @param wrapper
+     * @return
+     */
+    NewsVO selectNewsWithColumn(@Param(Constants.WRAPPER) Wrapper wrapper);
 }
