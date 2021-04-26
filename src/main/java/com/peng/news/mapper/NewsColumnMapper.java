@@ -34,5 +34,12 @@ public interface NewsColumnMapper extends BaseMapper<NewsColumnPO> {
      * @param colId
      * @return
      */
-    NewsColumnVO selectEnabledColWithParentAndSettings(Integer colId);
+    NewsColumnVO selectEnabledColWithParentAndSettingsById(Integer colId);
+
+    /**
+     * 按照parent_id查询出所有开启的子栏目id
+     * @param parentId
+     * @return
+     */
+    List<Integer> selectEnabledSubColByParentId(Integer parentId);
 }
