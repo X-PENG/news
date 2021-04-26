@@ -118,9 +118,9 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         pubInfo.formatAndValidate();
 
         Integer columnId = pubInfo.getColumnId();
-        //确保设置的新闻栏目存在
-        if(newsColumnMapper.selectCount(new QueryWrapper<NewsColumnPO>().eq("id", columnId)) == 0) {
-            throw new RuntimeException("选择的新闻栏目不存在，操作失败！");
+        //确保设置的新闻栏目存在且开启了
+        if(newsColumnMapper.assertColExistAndEnabled(columnId) == 0) {
+            throw new RuntimeException("选择的新闻栏目不存在或未开启，操作失败！");
         }
 
         UpdateWrapper<NewsPO> updateWrapper = new UpdateWrapper<>();

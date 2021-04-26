@@ -29,4 +29,16 @@ public class CustomizedPage<T> {
         customizedPage.setRecords(page.getRecords());
         return customizedPage;
     }
+
+    /**
+     * 返回空数据页
+     * @param <T>
+     * @return
+     */
+    public static <T> CustomizedPage<T> emptyPage(Class<T> clazz) {
+        CustomizedPage<T> customizedPage = new CustomizedPage<T>();
+        customizedPage.setCurrent(1);
+        customizedPage.setSize(10);
+        return customizedPage;
+    }
 }
