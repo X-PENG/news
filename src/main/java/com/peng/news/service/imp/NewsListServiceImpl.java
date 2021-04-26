@@ -83,4 +83,13 @@ public class NewsListServiceImpl implements NewsListService {
 
         return newsListDTO;
     }
+
+    @Override
+    public List<NewsColumnVO> subColList(int colId) {
+        if(newsColumnMapper.assertColExistAndEnabled(colId) == 0) {
+            //栏目不存在或没有开启
+            throw new RuntimeException("栏目不存在！");
+        }
+        return newsColumnMapper.selectEnabledSubColInfoByParentId(colId);
+    }
 }

@@ -42,4 +42,18 @@ public interface NewsColumnMapper extends BaseMapper<NewsColumnPO> {
      * @return
      */
     List<Integer> selectEnabledSubColByParentId(Integer parentId);
+
+    /**
+     * 按照parent_id查询所有开启的子栏目 信息
+     * @param parentId
+     * @return
+     */
+    List<NewsColumnVO> selectEnabledSubColInfoByParentId(Integer parentId);
+
+    /**
+     * 确保栏目存在并且开启
+     * @param colId
+     * @return
+     */
+    int assertColExistAndEnabled(Integer colId);
 }

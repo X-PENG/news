@@ -85,4 +85,17 @@
         from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
         where t2.enabled = 1 and t1.parent_id=#{parentId}
     </select>
+
+    <select id="selectEnabledSubColInfoByParentId" resultMap="BaseResultMap">
+        select t1.id id, title
+        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
+        where t2.enabled = 1 and t1.parent_id=#{parentId}
+        order by t2.menu_order, t2.create_time
+    </select>
+
+    <select id="assertColExistAndEnabled" resultType="integer">
+        select count(*)
+        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
+        where t2.enabled = 1 and t1.id=#{colId}
+    </select>
 </mapper>
