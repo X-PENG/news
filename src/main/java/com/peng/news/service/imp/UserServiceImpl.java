@@ -206,7 +206,7 @@ public class UserServiceImpl implements UserService {
     public boolean setRolesForUser(Integer userId, Integer[] roleIds) {
         assertUserExists(userId);
         //去重
-        if(isAdmin(userId) || roleMapper.selectCount(new QueryWrapper<RolePO>().in("id", roleIds).eq("is_system_admin", true)) > 0 ){
+        if(isAdmin(userId) || ( roleIds.length > 0 && roleMapper.selectCount(new QueryWrapper<RolePO>().in("id", roleIds).eq("is_system_admin", true)) > 0 )){
             throw new RuntimeException("不允许修改系统管理员的配置或设置为系统管理员！");
         }
 
