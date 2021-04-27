@@ -1,3 +1,6 @@
+server:
+  port: 9090
+
 spring:
   #数据源配置
   datasource:
@@ -7,10 +10,16 @@ spring:
     username: PENG
     password: PENGmysqlserver666
 
-#不打印sql
-logging:
-  level:
-    com:
-      peng:
-        news:
-          mapper: warn
+#mybatis-plus配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.peng.news.model
+  configuration:
+    map-underscore-to-camel-case: true
+  type-handlers-package: com.peng.news.mybatisTypeHandler
+
+#系统内部配置
+news:
+  system:
+    #如果要改变最大审核等级，就需要数据库管理员去数据库中新增没有的审核资源
+    max-review-level: 6
