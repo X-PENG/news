@@ -1,0 +1,16 @@
+spring:
+  #数据源配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.99.61.90:3306/news_stage?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: PENG
+    password: PENGmysqlserver666
+
+#不打印sql
+logging:
+  level:
+    com:
+      peng:
+        news:
+          mapper: warn
