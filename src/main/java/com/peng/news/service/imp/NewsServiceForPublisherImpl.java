@@ -136,6 +136,7 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         setCarouselStatus(updateWrapper, pubInfo.isCarousel(), pubInfo.getImgUrlForCarousel());
         setHeadlinesStatus(updateWrapper, pubInfo.isHeadlines());
         Timestamp now = new Timestamp(Instant.now().toEpochMilli());
+        //默认设为当前时间
         updateWrapper.set("show_pub_time", pubInfo.getShowPubTime() == null ? now : pubInfo.getShowPubTime());
         updateWrapper.set("init_reading_count", pubInfo.getInitReadingCount());
         updateWrapper.set("img_for_show_on_news_list", pubInfo.getImgForShowOnNewsList());
