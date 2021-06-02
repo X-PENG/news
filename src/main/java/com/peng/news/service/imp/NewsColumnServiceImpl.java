@@ -2,11 +2,9 @@ package com.peng.news.service.imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.peng.news.mapper.NewsColSettingsMapper;
 import com.peng.news.mapper.NewsColumnMapper;
 import com.peng.news.mapper.NewsMapper;
 import com.peng.news.model.enums.NewsStatus;
-import com.peng.news.model.po.NewsColSettingsPO;
 import com.peng.news.model.po.NewsColumnPO;
 import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsColumnVO;
@@ -37,9 +35,6 @@ public class NewsColumnServiceImpl implements NewsColumnService {
     @Autowired
     NewsMapper newsMapper;
 
-    @Autowired
-    NewsColSettingsMapper newsColSettingsMapper;
-
     @Override
     public List<NewsColumnVO> getAllColumnsByParentId(Integer parentId) {
         return newsColumnMapper.columnListWithSettingsByParentId(parentId);
@@ -68,11 +63,6 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         newsColumnPO.setExternalLink(newsColumnVO.getExternalLink());
         newsColumnMapper.insert(newsColumnPO);
 
-        //插入栏目设置信息
-        NewsColSettingsPO newsColSettingsPO = new NewsColSettingsPO();
-        newsColSettingsPO.setColId(newsColumnPO.getId());
-        newsColSettingsMapper.insert(newsColSettingsPO);
-
         return newsColumnPO.getId();
     }
 
@@ -96,8 +86,6 @@ public class NewsColumnServiceImpl implements NewsColumnService {
 
         newsColumnMapper.deleteById(newsColId);
 
-        //删除设置信息
-        newsColSettingsMapper.delete(new QueryWrapper<NewsColSettingsPO>().eq("col_id", newsColId));
         return true;
     }
 
@@ -138,32 +126,12 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         updateWrapper.set("parent_id", newParentId);
         updateWrapper.set("external_link", newsColumnVO.getExternalLink());
         updateWrapper.set("description", newsColumnVO.getDescription());
+        //更新menu_order和module_order
+        updateWrapper.set("menu_order", newsColumnVO.getMenuOrder());
+        updateWrapper.set("module_order", newsColumnVO.getModuleOrder());
         //执行更新
         newsColumnMapper.update(null, updateWrapper);
 
-        //再来更新栏目设置信息
-        NewsColSettingsPO settings = newsColumnVO.getSettings();
-        //如果传递了设置信息
-        if(settings != null) {
-            if(existSettingsInfo(columnVOId)) {
-                //更新设置信息
-                UpdateWrapper<NewsColSettingsPO> settingsPOUpdateWrapper = new UpdateWrapper<>();
-                //查到了，就按栏目id更新
-                settingsPOUpdateWrapper.eq("col_id", columnVOId);
-                settingsPOUpdateWrapper.set("menu_order", settings.getMenuOrder());
-                settingsPOUpdateWrapper.set("module_order", settings.getModuleOrder());
-
-                //执行更新
-                newsColSettingsMapper.update(null, settingsPOUpdateWrapper);
-            }else {
-                //没有查到设置信息，就插入设置信息
-                NewsColSettingsPO newsColSettingsPO = new NewsColSettingsPO();
-                newsColSettingsPO.setColId(columnVOId);
-                newsColSettingsPO.setMenuOrder(settings.getMenuOrder());
-                newsColSettingsPO.setModuleOrder(settings.getModuleOrder());
-                newsColSettingsMapper.insert(newsColSettingsPO);
-            }
-        }
         return true;
     }
 
@@ -182,17 +150,8 @@ public class NewsColumnServiceImpl implements NewsColumnService {
             }
         }
 
-        if(existSettingsInfo(newsColId)) {
-            //存在就更新
-            newsColSettingsMapper.update(null, new UpdateWrapper<NewsColSettingsPO>().eq("col_id", newsColId).set("enabled", enabled));
-        }else {
-            //不存在就插入
-            NewsColSettingsPO newsColSettingsPO = new NewsColSettingsPO();
-            newsColSettingsPO.setColId(newsColId);
-            newsColSettingsPO.setEnabled(enabled);
-            newsColSettingsMapper.insert(newsColSettingsPO);
-        }
-
+        //更新enabled
+        newsColumnMapper.update(null, new UpdateWrapper<NewsColumnPO>().eq("id", newsColId).set("enabled", enabled));
         return true;
     }
 
@@ -227,20 +186,8 @@ public class NewsColumnServiceImpl implements NewsColumnService {
     public boolean changeNewsColShowImgStatus(Integer newsColId, boolean status) {
         //确保栏目存在
         assertNewsColExists(newsColId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
-        //确保该栏目的设置已存在
-        if(existSettingsInfo(newsColId)) {
-            //更新设置信息
-            UpdateWrapper<NewsColSettingsPO> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.eq("col_id", newsColId);
-            updateWrapper.set("show_img_on_the_right", status);
-            newsColSettingsMapper.update(null, updateWrapper);
-        }else {
-            //不存在设置信息，就插入设置信息
-            NewsColSettingsPO newsColSettingsPO = new NewsColSettingsPO();
-            newsColSettingsPO.setColId(newsColId);
-            newsColSettingsPO.setShowImgOnTheRight(status);
-            newsColSettingsMapper.insert(newsColSettingsPO);
-        }
+        //更新show_img_on_the_right字段
+        newsColumnMapper.update(null, new UpdateWrapper<NewsColumnPO>().eq("id", newsColId).set("show_img_on_the_right", status));
         return true;
     }
 
@@ -353,17 +300,15 @@ public class NewsColumnServiceImpl implements NewsColumnService {
      */
     boolean validateInfoIsLegality(NewsColumnVO newsColumnVO){
         boolean validateResult = true;
-        //栏目的设置信息
-        NewsColSettingsPO settings = newsColumnVO.getSettings();
         String msg = null;
-        if(settings != null) {
-            if(settings.getMenuOrder() != null && (settings.getMenuOrder() < 1 || settings.getMenuOrder() > 127)){
-                validateResult = false;
-                msg = "菜单序号必须在1~127之间，操作失败！";
-            }else if(settings.getModuleOrder() != null && (settings.getModuleOrder() < 1 && settings.getModuleOrder() > 127)){
-                validateResult = false;
-                msg = "模块序号必须在1~127之间，操作失败！";
-            }
+        Integer menuOrder = newsColumnVO.getMenuOrder();
+        Integer moduleOrder = newsColumnVO.getModuleOrder();
+        if(menuOrder != null && (menuOrder < 1 || menuOrder > 127)){
+            validateResult = false;
+            msg = "菜单序号必须在1~127之间，操作失败！";
+        }else if(moduleOrder != null && (moduleOrder < 1 || moduleOrder > 127)){
+            validateResult = false;
+            msg = "模块序号必须在1~127之间，操作失败！";
         }
 
         if (!validateResult){
@@ -383,19 +328,5 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         String description = newsColumnVO.getDescription();
         newsColumnVO.setDescription(!StringUtils.isNotEmpty(description) ? null : description.trim());
         return true;
-    }
-
-    /**
-     * 判断该栏目是否存在设置信息
-     * @param newsColId
-     * @return
-     */
-    private boolean existSettingsInfo(int newsColId) {
-        Integer count = newsColSettingsMapper.selectCount(new QueryWrapper<NewsColSettingsPO>().eq("col_id", newsColId));
-        if(count < 1) {
-            log.warn("栏目[id=" + newsColId + "]不存在设置信息！");
-        }
-
-        return count >= 1;
     }
 }

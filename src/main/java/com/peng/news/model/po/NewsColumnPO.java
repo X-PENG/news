@@ -30,6 +30,14 @@ public class NewsColumnPO {
 
     Boolean isHasChildren;
 
+    Boolean enabled;
+
+    Integer menuOrder;
+
+    Integer moduleOrder;
+
+    Boolean showImgOnTheRight;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     Timestamp createTime;
 

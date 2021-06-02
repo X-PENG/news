@@ -65,7 +65,7 @@ public class NewsListServiceImpl implements NewsListService {
         if(!columnVO.getIsHasChildren()) {
             queryWrapper.eq("column_id", colId);
         }else {
-            //有子栏目
+            //有子栏目，则查询当前栏目+子栏目的新闻
             subColIdList.add(colId);
             queryWrapper.in("column_id", subColIdList);
         }

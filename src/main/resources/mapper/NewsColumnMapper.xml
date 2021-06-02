@@ -11,6 +11,10 @@
         <result property="parentId" column="parent_id"/>
         <result property="externalLink" column="external_link"/>
         <result property="isHasChildren" column="is_has_children"/>
+        <result property="enabled" column="enabled"/>
+        <result property="menuOrder" column="menu_order"/>
+        <result property="moduleOrder" column="module_order"/>
+        <result property="showImgOnTheRight" column="show_img_on_the_right"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
@@ -19,29 +23,15 @@
         <association property="parent" column="parent_id" select="selectTitleAndWithParentById"/>
     </resultMap>
 
-    <resultMap id="ResultMapWithSettings" type="NewsColumnVO" extends="BaseResultMap">
-        <association property="settings" javaType="NewsColSettingsPO">
-            <id property="id" column="settings_id"/>
-            <result property="enabled" column="enabled"/>
-            <result property="menuOrder" column="menu_order"/>
-            <result property="moduleOrder" column="module_order"/>
-            <result property="showImgOnTheRight" column="show_img_on_the_right"/>
-        </association>
-    </resultMap>
-
     <resultMap id="ResultMapWithParentAndSettings" type="NewsColumnVO" extends="BaseResultMap">
         <association property="parent" column="parent_id" select="selectTitleAndWithParentById"/>
-        <association property="settings" javaType="NewsColSettingsPO">
-            <id property="id" column="settings_id"/>
-            <result property="showImgOnTheRight" column="show_img_on_the_right"/>
-        </association>
     </resultMap>
 
     <select id="getEnabledChildrenNewsColumnListByParentId" resultMap="BaseResultMap">
        <!-- 新闻栏目必须开启 -->
-        select t1.id id, title, is_has_children
-        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
-        where t2.enabled = 1 and
+        select id, title, is_has_children
+        from news_column
+        where enabled = 1 and
         <choose>
             <when test="parentId == null">
                 parent_id is null
@@ -50,18 +40,18 @@
                 parent_id=#{parentId}
             </otherwise>
         </choose>
-        order by t2.menu_order
+        order by menu_order
     </select>
 
     <select id="selectTitleAndWithParentById" resultMap="ResultMapWithParentCol">
-        select t1.id id, title, parent_id
-        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
-        where t2.enabled = 1 and t1.id=#{colId}
+        select id, title, parent_id
+        from news_column
+        where enabled = 1 and id=#{colId}
     </select>
 
-    <select id="columnListWithSettingsByParentId" resultMap="ResultMapWithSettings">
-        select t1.id id, title, description, parent_id, external_link, is_has_children, t1.create_time create_time,t2.id settings_id, t2.enabled enabled, t2.menu_order menu_order, t2.module_order module_order, t2.show_img_on_the_right show_img_on_the_right
-        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
+    <select id="columnListWithSettingsByParentId" resultMap="BaseResultMap">
+        select *
+        from news_column
         where
         <choose>
             <when test="parentId == null">
@@ -75,27 +65,27 @@
     </select>
 
     <select id="selectEnabledColWithParentAndSettingsById" resultMap="ResultMapWithParentAndSettings">
-        select t1.id id, title, is_has_children, parent_id, t2.id settings_id, t2.show_img_on_the_right show_img_on_the_right
-        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
-        where t2.enabled = 1 and t1.id=#{colId}
+        select id, title, is_has_children, parent_id, show_img_on_the_right
+        from news_column
+        where enabled = 1 and id=#{colId}
     </select>
 
     <select id="selectEnabledSubColByParentId" resultType="integer">
-        select t1.id id
-        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
-        where t2.enabled = 1 and t1.parent_id=#{parentId}
+        select id
+        from news_column
+        where enabled = 1 and parent_id=#{parentId}
     </select>
 
     <select id="selectEnabledSubColInfoByParentId" resultMap="BaseResultMap">
-        select t1.id id, title
-        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
-        where t2.enabled = 1 and t1.parent_id=#{parentId}
-        order by t2.menu_order, t2.create_time
+        select id, title
+        from news_column
+        where enabled = 1 and parent_id=#{parentId}
+        order by menu_order, create_time
     </select>
 
     <select id="assertColExistAndEnabled" resultType="integer">
         select count(*)
-        from news_column t1 LEFT join news_column_settings t2 on t2.col_id=t1.id
-        where t2.enabled = 1 and t1.id=#{colId}
+        from news_column
+        where enabled = 1 and id=#{colId}
     </select>
 </mapper>

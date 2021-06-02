@@ -3,7 +3,7 @@ package com.peng.news.model.bean;
 import lombok.Data;
 
 /**
- * 路由的mate信息
+ * 路由的meta信息
  * @author PENG
  * @version 1.0
  * @date 2021/3/30 16:29

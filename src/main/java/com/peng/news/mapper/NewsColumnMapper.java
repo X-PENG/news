@@ -50,10 +50,5 @@ public interface NewsColumnMapper extends BaseMapper<NewsColumnPO> {
      */
     List<NewsColumnVO> selectEnabledSubColInfoByParentId(Integer parentId);
 
-    /**
-     * 确保栏目存在并且开启
-     * @param colId
-     * @return
-     */
     int assertColExistAndEnabled(Integer colId);
 }
