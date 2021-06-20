@@ -9,6 +9,12 @@ spring:
     url: jdbc:mysql://localhost:3306/news?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
+  #redis配置
+  redis:
+    host: 47.99.61.90
+    port: 6379
+    password: peng123
+    database: 0
 
 #showSql
 logging:
