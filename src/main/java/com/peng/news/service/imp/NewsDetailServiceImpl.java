@@ -6,7 +6,6 @@ import com.peng.news.model.enums.NewsStatus;
 import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsVO;
 import com.peng.news.service.AsyncTaskService;
-import com.peng.news.service.NewsDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
  * @date 2021/4/24 0:18
  */
 @Service
-public class NewsDetailServiceImpl implements NewsDetailService {
+public class NewsDetailServiceImpl extends AbstractNewsDetailService {
 
     @Autowired
     NewsMapper newsMapper;
@@ -24,8 +23,13 @@ public class NewsDetailServiceImpl implements NewsDetailService {
     @Autowired
     AsyncTaskService asyncTaskService;
 
+    /**
+     * 直接从数据库中查询
+     * @param newsId
+     * @return
+     */
     @Override
-    public NewsVO getOneNews(Integer newsId) {
+    protected NewsVO queryNews(int newsId) {
         QueryWrapper<NewsPO> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", newsId).eq("news_status", NewsStatus.PUBLISHED.getCode());
 
@@ -39,9 +43,15 @@ public class NewsDetailServiceImpl implements NewsDetailService {
             throw new RuntimeException("异常新闻，没有指定新闻栏目或所属栏目不存在或栏目未开启！");
         }
 
-        //增加阅读量
-        asyncTaskService.increaseReadingCount(newsId);
-
         return newsVO;
+    }
+
+    /**
+     * 直接更新数据库
+     * @param newsId
+     */
+    @Override
+    protected void increaseNewsReadingCount(int newsId) {
+        asyncTaskService.increaseReadingCount(newsId);
     }
 }

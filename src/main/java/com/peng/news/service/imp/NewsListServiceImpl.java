@@ -23,7 +23,7 @@ import java.util.List;
  * @version 1.0
  * @date 2021/4/23 19:47
  */
-@Service
+@Service("newsListService")
 public class NewsListServiceImpl implements NewsListService {
 
     @Autowired
@@ -33,7 +33,7 @@ public class NewsListServiceImpl implements NewsListService {
     NewsColumnMapper newsColumnMapper;
 
     @Override
-    public NewsListDTO newsListByColId(int colId, Integer page, Integer pageSize) {
+    public NewsListDTO newsListByColId(int colId, int page, int pageSize) {
         NewsColumnVO columnVO = newsColumnMapper.selectEnabledColWithParentAndSettingsById(colId);
         if(columnVO == null) {
             //栏目不存在或未开启
@@ -53,10 +53,6 @@ public class NewsListServiceImpl implements NewsListService {
             columnVO.setIsHasChildren(false);
             newsColumnMapper.update(null, new UpdateWrapper<NewsColumnPO>().set("is_has_children", false).eq("id", colId));
         }
-
-        //处理分页参数
-        page = page == null || page < 1 ? 1 : page;
-        pageSize = pageSize == null || pageSize < 0 ? 0 : pageSize;
 
         QueryWrapper<NewsPO> queryWrapper = new QueryWrapper<>();
         //必须是已经发布的新闻

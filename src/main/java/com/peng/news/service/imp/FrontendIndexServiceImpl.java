@@ -3,6 +3,7 @@ package com.peng.news.service.imp;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.peng.news.cache.constant.CacheConstants;
 import com.peng.news.mapper.NewsColumnMapper;
 import com.peng.news.mapper.NewsMapper;
 import com.peng.news.model.enums.NewsStatus;
@@ -10,6 +11,8 @@ import com.peng.news.model.po.NewsPO;
 import com.peng.news.model.vo.NewsColumnVO;
 import com.peng.news.service.FrontendIndexService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.List;
  * @date 2021/4/23 16:33
  */
 @Service
+@CacheConfig(cacheNames = CacheConstants.CACHE_NAME_FRONTEND_INDEX_PAGE)
 public class FrontendIndexServiceImpl implements FrontendIndexService {
 
     @Autowired
@@ -28,11 +32,13 @@ public class FrontendIndexServiceImpl implements FrontendIndexService {
     @Autowired
     NewsMapper newsMapper;
 
+    @Cacheable(key = "'" + CacheConstants.CACHE_KEY_FRONTEND_NAVIGATION + "'")
     @Override
     public List<NewsColumnVO> allEnabledOneLevelColsOrderByMenuOrder() {
         return newsColumnMapper.getEnabledChildrenNewsColumnListByParentId(null);
     }
 
+    @Cacheable(key = "'" + CacheConstants.CACHE_KEY_FRONTEND_HEADLINES + "'")
     @Override
     public NewsPO getHeadLines() {
         QueryWrapper<NewsPO> queryWrapper = new QueryWrapper<>();
@@ -47,6 +53,7 @@ public class FrontendIndexServiceImpl implements FrontendIndexService {
         return selectPage.getRecords().get(0);
     }
 
+    @Cacheable(key = "'" + CacheConstants.CACHE_KEY_FRONTEND_CAROUSEL + "'")
     @Override
     public List<NewsPO> carouselNewsList(Integer amount) {
         //默认5个

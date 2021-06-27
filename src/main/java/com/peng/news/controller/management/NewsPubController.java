@@ -1,5 +1,7 @@
 package com.peng.news.controller.management;
 
+import com.peng.news.cache.service.FrontendIndexPageCacheManageService;
+import com.peng.news.cache.service.NewsListCacheManageService;
 import com.peng.news.model.CustomizedPage;
 import com.peng.news.model.Result;
 import com.peng.news.model.enums.NewsStatus;
@@ -38,6 +40,12 @@ public class NewsPubController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    FrontendIndexPageCacheManageService frontendIndexPageCacheManageService;
+
+    @Autowired
+    NewsListCacheManageService newsListCacheManageService;
 
     @GetMapping("/hello")
     public String hello(){
@@ -96,6 +104,8 @@ public class NewsPubController {
     @PutMapping("/{newsId}")
     public Result publishOneNews(@PathVariable int newsId,@RequestBody NewsBeanForPublisherPub pubInfo) {
         newsServiceForPublisher.publishOneNews(newsId, pubInfo);
+        //清空对应栏目的新闻列表缓存
+        newsListCacheManageService.clearColumnNewsListCache(pubInfo.getColumnId());
         return Result.success("发布成功！");
     }
 
@@ -127,7 +137,10 @@ public class NewsPubController {
      */
     @PutMapping("/revoke/{newsId}")
     public Result revokePub(@PathVariable int newsId) {
-        newsServiceForPublisher.revokePub(newsId);
+        NewsPO newsInfo = newsServiceForPublisher.revokePub(newsId);
+        frontendIndexPageCacheManageService.delHeadlinesCache(newsId);
+        frontendIndexPageCacheManageService.delCarouselCache(newsId);
+        newsListCacheManageService.clearColumnNewsListCache(newsInfo.getColumnId());
         return Result.success("撤销成功！");
     }
 
@@ -144,6 +157,9 @@ public class NewsPubController {
         if(paramBean.getIsCarousel()) {
             //设为轮播的话，就返回设为轮播的时间
             result.setData(DateTimeFormatUtils.format(newsPO.getSetCarouselTime().toLocalDateTime()));
+        }else {
+            //可能要删除轮播新闻的缓存
+            frontendIndexPageCacheManageService.delCarouselCache(newsId);
         }
         return result;
     }
@@ -161,6 +177,9 @@ public class NewsPubController {
         if(tag == 1) {
             //设为头条的话，就返回设为头条的时间
             result.setData(DateTimeFormatUtils.format(newsPO.getSetHeadlinesTime().toLocalDateTime()));
+        }else {
+            //取消设为头条，可能会删除头条缓存
+            frontendIndexPageCacheManageService.delHeadlinesCache(newsId);
         }
         return result;
     }

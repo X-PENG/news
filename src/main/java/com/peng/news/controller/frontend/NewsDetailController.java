@@ -1,8 +1,8 @@
 package com.peng.news.controller.frontend;
 
+import com.peng.news.cache.service.NewsDetailServiceDecoratedByCache;
 import com.peng.news.model.Result;
 import com.peng.news.model.vo.NewsVO;
-import com.peng.news.service.NewsDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,11 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class NewsDetailController {
 
     @Autowired
-    NewsDetailService newsDetailService;
+    NewsDetailServiceDecoratedByCache newsDetailService;
 
+    /**
+     * 查看新闻接口
+     * @param newsId
+     * @return
+     */
     @GetMapping("/{newsId}")
-    public Result<NewsVO> getOneNews(@PathVariable int newsId) {
-        return Result.success(newsDetailService.getOneNews(newsId));
+    public Result<NewsVO> viewNews(@PathVariable int newsId) {
+        return Result.success(newsDetailService.viewNews(newsId));
     }
 
 }

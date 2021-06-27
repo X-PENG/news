@@ -2,6 +2,7 @@ package com.peng.news.service.imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.peng.news.cache.constant.CacheConstants;
 import com.peng.news.mapper.ResourceMapper;
 import com.peng.news.mapper.RoleMapper;
 import com.peng.news.mapper.RoleResourceMapper;
@@ -12,6 +13,7 @@ import com.peng.news.model.po.RoleResourcePO;
 import com.peng.news.model.vo.RoleVO;
 import com.peng.news.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,6 +79,7 @@ public class RoleServiceImpl implements RoleService {
         rolePO.setNameZh(nameZh);
     }
 
+    @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_REAR_END, key = "'" + CacheConstants.CACHE_KEY_ALL_RESOURCE_WITH_ROLE_LIST + "'")
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean delRole(Integer roleId) {
@@ -102,6 +105,7 @@ public class RoleServiceImpl implements RoleService {
         return CustomizedPage.fromIPage(roleMapper.selectRolesByPage(new Page(page, pageSize)));
     }
 
+    @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_REAR_END, key = "'" + CacheConstants.CACHE_KEY_ALL_RESOURCE_WITH_ROLE_LIST + "'")
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean setResourcesForRole(Integer roleId, Integer[] resourceIds) {

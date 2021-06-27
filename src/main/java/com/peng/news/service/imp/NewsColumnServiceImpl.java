@@ -2,6 +2,7 @@ package com.peng.news.service.imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.peng.news.cache.constant.CacheConstants;
 import com.peng.news.mapper.NewsColumnMapper;
 import com.peng.news.mapper.NewsMapper;
 import com.peng.news.model.enums.NewsStatus;
@@ -12,6 +13,7 @@ import com.peng.news.service.NewsColumnService;
 import com.peng.news.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,7 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         return newsColumnMapper.columnListWithSettingsByParentId(parentId);
     }
 
+    @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_FRONTEND_INDEX_PAGE, key = "'" + CacheConstants.CACHE_KEY_FRONTEND_NAVIGATION + "'", condition = "#p0.parentId == null")
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Integer addNewsColumn(NewsColumnVO newsColumnVO) {
@@ -66,10 +69,11 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         return newsColumnPO.getId();
     }
 
+    @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_FRONTEND_INDEX_PAGE, key = "'" + CacheConstants.CACHE_KEY_FRONTEND_NAVIGATION + "'", condition = "#result.parentId == null")
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean delNewsColumn(Integer newsColId) {
-        NewsColumnPO newsColumnPO = assertNewsColExists(newsColId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
+    public NewsColumnPO delNewsColumn(Integer newsColId) {
+        NewsColumnPO oldColumn = assertNewsColExists(newsColId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
 
         if(hasChildren(newsColId) > 0){
             throw new RuntimeException("当前栏目包含子栏目，不允许删除，操作失败！");
@@ -80,22 +84,23 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         }
 
         //如果有父栏目，则取消设置
-        if(newsColumnPO.getParentId() != null){
-            operateParentNewsCol(newsColumnPO.getParentId(), true);
+        if(oldColumn.getParentId() != null){
+            operateParentNewsCol(oldColumn.getParentId(), true);
         }
 
         newsColumnMapper.deleteById(newsColId);
 
-        return true;
+        return oldColumn;
     }
 
+    @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_FRONTEND_INDEX_PAGE, key = "'" + CacheConstants.CACHE_KEY_FRONTEND_NAVIGATION + "'", condition = "#result.parentId == null")
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updateNewsColumn(NewsColumnVO newsColumnVO) {
+    public NewsColumnPO updateNewsColumn(NewsColumnVO newsColumnVO) {
         Integer columnVOId = newsColumnVO.getId();
 
         //确保要更新的新闻栏目存在
-        NewsColumnPO queryResult = assertNewsColExists(columnVOId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
+        NewsColumnPO oldColumn = assertNewsColExists(columnVOId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
 
         if(columnVOId.equals(newsColumnVO.getParentId())){
             throw new RuntimeException("自己不能作为自己的父栏目，操作失败！");
@@ -109,7 +114,7 @@ public class NewsColumnServiceImpl implements NewsColumnService {
 
         //处理父栏目
         Integer newParentId = newsColumnVO.getParentId();
-        Integer oldParentId = queryResult.getParentId();
+        Integer oldParentId = oldColumn.getParentId();
         if(oldParentId != null && !oldParentId.equals(newParentId)){
             //将原父栏目取消设置为父栏目
             operateParentNewsCol(oldParentId, true);
@@ -132,12 +137,13 @@ public class NewsColumnServiceImpl implements NewsColumnService {
         //执行更新
         newsColumnMapper.update(null, updateWrapper);
 
-        return true;
+        return oldColumn;
     }
 
+    @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_FRONTEND_INDEX_PAGE, key = "'" + CacheConstants.CACHE_KEY_FRONTEND_NAVIGATION + "'", condition = "#result.parentId == null")
     @Override
-    public boolean enableOrDisableNewsColumn(Integer newsColId, boolean enabled) {
-        assertNewsColExists(newsColId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
+    public NewsColumnPO enableOrDisableNewsColumn(Integer newsColId, boolean enabled) {
+        NewsColumnPO oldColumn = assertNewsColExists(newsColId, NEWS_COL_NOT_EXISTS_MSG_FOR_DEL_OR_UPDATE);
 
         //若是关闭栏目
         if(!enabled){
@@ -152,7 +158,7 @@ public class NewsColumnServiceImpl implements NewsColumnService {
 
         //更新enabled
         newsColumnMapper.update(null, new UpdateWrapper<NewsColumnPO>().eq("id", newsColId).set("enabled", enabled));
-        return true;
+        return oldColumn;
     }
 
     @Override

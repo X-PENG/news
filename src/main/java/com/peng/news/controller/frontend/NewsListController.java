@@ -5,6 +5,7 @@ import com.peng.news.model.dto.NewsListDTO;
 import com.peng.news.model.vo.NewsColumnVO;
 import com.peng.news.service.NewsListService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import java.util.List;
 public class NewsListController {
 
     @Autowired
+    @Qualifier("newsListServiceDecoratedByCache")
     NewsListService newsListService;
 
     /**
@@ -33,6 +35,9 @@ public class NewsListController {
      */
     @GetMapping("/{colId}")
     public Result<NewsListDTO> newsListByColId(@PathVariable int colId, Integer page, Integer pageSize) {
+        //处理分页参数
+        page = page == null || page < 1 ? 1 : page;
+        pageSize = pageSize == null || pageSize < 0 ? 0 : pageSize;
         return Result.success(newsListService.newsListByColId(colId, page, pageSize));
     }
 

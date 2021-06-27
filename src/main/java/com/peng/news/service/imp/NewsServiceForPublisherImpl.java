@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.peng.news.cache.constant.CacheConstants;
 import com.peng.news.mapper.NewsColumnMapper;
 import com.peng.news.mapper.NewsMapper;
 import com.peng.news.model.CustomizedPage;
@@ -20,6 +21,8 @@ import com.peng.news.util.Constants;
 import com.peng.news.util.DateTimeFormatUtils;
 import com.peng.news.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -109,6 +112,10 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         return true;
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_FRONTEND_INDEX_PAGE, key = "'" + CacheConstants.CACHE_KEY_FRONTEND_HEADLINES + "'", condition = "#p1.headlines"),
+            @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_FRONTEND_INDEX_PAGE, key = "'" + CacheConstants.CACHE_KEY_FRONTEND_CAROUSEL + "'", condition = "#p1.carousel")
+    })
     @Override
     public boolean publishOneNews(Integer newsId, NewsBeanForPublisherPub pubInfo) {
         //首先，确保新闻存在，且处于待发布状态
@@ -197,10 +204,14 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         return CustomizedPage.fromIPage(selectPage);
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_HOT_NEWS, key = "#p0"),
+            @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_HOT_NEWS, key = "'" + CacheConstants.CACHE_KEY_PREFIX_NEWS_READING_COUNT + CacheConstants.CACHE_KEY_SEPARATOR + "' + #p0")
+    })
     @Override
-    public boolean revokePub(int newsId) {
+    public NewsPO revokePub(int newsId) {
         //确保新闻存在，且是已发布的
-        assertNewsExistsAndPublished(newsId);
+        NewsPO newsInfo = assertNewsExistsAndPublished(newsId);
         UpdateWrapper<NewsPO> updateWrapper = new UpdateWrapper<>();
         //按照id更新
         updateWrapper.eq("id", newsId);
@@ -217,7 +228,7 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         updateWrapper.set("img_for_show_on_news_list", null);
         //执行更新
         newsMapper.update(null, updateWrapper);
-        return true;
+        return newsInfo;
     }
 
     @Override
@@ -239,6 +250,7 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         return newsMapper.selectOne(new QueryWrapper<NewsPO>().select("set_top_time").eq("id", newsId));
     }
 
+    @CacheEvict(value = CacheConstants.CACHE_NAME_FRONTEND_INDEX_PAGE, key = "'" + CacheConstants.CACHE_KEY_FRONTEND_HEADLINES + "'", condition = "#p1 == 1")
     @Override
     public NewsPO headlinesManage(int newsId, int tag) {
         if(tag != 1 && tag != 2) {
@@ -258,6 +270,7 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
         return newsMapper.selectOne(new QueryWrapper<NewsPO>().select("set_headlines_time").eq("id", newsId));
     }
 
+    @CacheEvict(cacheNames = CacheConstants.CACHE_NAME_FRONTEND_INDEX_PAGE, key = "'" + CacheConstants.CACHE_KEY_FRONTEND_CAROUSEL + "'", condition = "#p1.isCarousel != null && #p1.isCarousel.booleanValue()")
     @Override
     public NewsPO carouselManage(int newsId, CarouselParamBean paramBean) {
         //对参数进行格式化和校验
@@ -297,18 +310,22 @@ public class NewsServiceForPublisherImpl implements NewsServiceForPublisher {
     /**
      * 确定新闻存在，并且属于 已发布 状态
      * @param newsId
+     * @return 新闻信息
      */
-    private void assertNewsExistsAndPublished(Integer newsId) {
+    private NewsPO assertNewsExistsAndPublished(Integer newsId) {
         if(newsId == null){
             throw new RuntimeException("已发布站中不存在此新闻，操作失败！");
         }
 
         QueryWrapper<NewsPO> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", newsId).eq("news_status", NewsStatus.PUBLISHED.getCode());
+        queryWrapper.select("column_id");
+        NewsPO selectOne = newsMapper.selectOne(queryWrapper);
 
-        if(newsMapper.selectCount(queryWrapper) == 0) {
+        if(selectOne == null) {
             throw new RuntimeException("已发布站中不存在此新闻，操作失败！");
         }
+        return selectOne;
     }
 
 

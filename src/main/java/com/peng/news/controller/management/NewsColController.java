@@ -1,5 +1,6 @@
 package com.peng.news.controller.management;
 
+import com.peng.news.cache.service.NewsListCacheManageService;
 import com.peng.news.model.Result;
 import com.peng.news.model.vo.NewsColumnVO;
 import com.peng.news.service.NewsColumnService;
@@ -20,6 +21,9 @@ public class NewsColController {
 
     @Autowired
     NewsColumnService newsColumnService;
+
+    @Autowired
+    NewsListCacheManageService newsListCacheManageService;
 
     @GetMapping("/hello")
     public String hello(){
@@ -59,6 +63,7 @@ public class NewsColController {
     @PutMapping("/")
     public Result updateNewsCol(@RequestBody NewsColumnVO newsColumnVO){
         newsColumnService.updateNewsColumn(newsColumnVO);
+        newsListCacheManageService.clearColumnNewsListCache(newsColumnVO.getId());
         return Result.success("修改成功！");
     }
 
@@ -77,6 +82,7 @@ public class NewsColController {
     @PutMapping("/showImgStatus/{newsColId}")
     public Result changeNewsColShowImgStatus(@PathVariable Integer newsColId, boolean status){
         newsColumnService.changeNewsColShowImgStatus(newsColId, status);
+        newsListCacheManageService.clearColumnNewsListCache(newsColId);
         return Result.success(status ? "成功设置右侧显示图片！" : "成功关闭右侧显示图片！");
     }
 }

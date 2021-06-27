@@ -1,9 +1,11 @@
 package com.peng.news.service.imp;
 
+import com.peng.news.cache.constant.CacheConstants;
 import com.peng.news.mapper.ResourceMapper;
 import com.peng.news.model.vo.ResourceVO;
 import com.peng.news.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,11 +22,7 @@ public class ResourceServiceImpl implements ResourceService {
     @Autowired
     ResourceMapper resourceMapper;
 
-    /**
-     * todo 做缓存
-     * 查询所有资源（包括不开启的资源），并且包含资源对应的角色列表
-     * @return
-     */
+    @Cacheable(cacheNames = CacheConstants.CACHE_NAME_REAR_END, key = "'" + CacheConstants.CACHE_KEY_ALL_RESOURCE_WITH_ROLE_LIST + "'")
     @Override
     public List<ResourceVO> getAllResourceWithRoles() {
         return resourceMapper.getAllResourceWithRoles();

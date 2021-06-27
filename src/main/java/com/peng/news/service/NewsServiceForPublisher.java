@@ -53,9 +53,9 @@ public interface NewsServiceForPublisher {
     /**
      * 撤销发布新闻
      * @param newsId
-     * @return
+     * @return 新闻信息
      */
-    boolean revokePub(int newsId);
+    NewsPO revokePub(int newsId);
 
     /**
      * 新闻置顶管理

@@ -37,3 +37,6 @@ news:
   system:
     #如果要改变最大审核等级，就需要数据库管理员去数据库中新增没有的审核资源
     max-review-level: 6
+  cache:
+    prefix: "news-dev::"
+    expire: 3600

@@ -10,5 +10,11 @@ import com.peng.news.model.vo.NewsVO;
  */
 public interface NewsDetailService {
 
-    NewsVO getOneNews(Integer newsId);
+    /**
+     * 查看新闻
+     * @param newsId
+     * @return
+     */
+    NewsVO viewNews(Integer newsId);
+
 }

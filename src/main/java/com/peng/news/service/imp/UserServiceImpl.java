@@ -324,7 +324,6 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * todo 加缓存
      * 返回管理员id集合
      * @return
      */

@@ -1,5 +1,6 @@
 package com.peng.news.service;
 
+import com.peng.news.model.po.NewsColumnPO;
 import com.peng.news.model.vo.NewsColumnVO;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public interface NewsColumnService {
      * @param newsColId 新闻栏目id
      * @return
      */
-    boolean delNewsColumn(Integer newsColId);
+    NewsColumnPO delNewsColumn(Integer newsColId);
 
     /**
      * 修改新闻栏目基本信息和设置信息，会更新：
@@ -44,7 +45,7 @@ public interface NewsColumnService {
      * @param newsColumnVO
      * @return
      */
-    boolean updateNewsColumn(NewsColumnVO newsColumnVO);
+    NewsColumnPO updateNewsColumn(NewsColumnVO newsColumnVO);
 
 
     /**
@@ -53,7 +54,7 @@ public interface NewsColumnService {
      * @param enabled
      * @return
      */
-    boolean enableOrDisableNewsColumn(Integer newsColId, boolean enabled);
+    NewsColumnPO enableOrDisableNewsColumn(Integer newsColId, boolean enabled);
 
     /**
      * 查询新闻栏目级联选择器数据

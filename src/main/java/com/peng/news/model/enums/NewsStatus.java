@@ -1,6 +1,9 @@
 package com.peng.news.model.enums;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.peng.news.component.NewsStatusSerializer;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -14,9 +17,12 @@ import java.util.stream.Collectors;
  */
 
 /**
- * 让枚举类对象按照普通类对象的格式进行序列化。
+ * 使用@JsonFormat让枚举类对象按照普通类对象的格式进行序列化，序列化结果示例：{"code": 1, "name": "已发布"}。
+ * 也可以自定义序列化器实现。
  */
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+//@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+@JsonSerialize(using = NewsStatusSerializer.class)//自定义序列化器
+//@JsonDeserialize(using = NewsStatusDeserializer.class)
 public enum NewsStatus {
     /**
      * 草稿
@@ -105,5 +111,10 @@ public enum NewsStatus {
 
     public String getName() {
         return name;
+    }
+
+    @JsonCreator
+    public static NewsStatus deserialize(@JsonProperty("code") int code) {
+        return fromCode(code);
     }
 }

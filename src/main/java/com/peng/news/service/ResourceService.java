@@ -10,6 +10,10 @@ import java.util.List;
  * @date 2021/3/24 10:00
  */
 public interface ResourceService {
+    /**
+     * 查询所有资源（包括不开启的资源），并且包含资源对应的角色列表
+     * @return
+     */
     List<ResourceVO> getAllResourceWithRoles();
 
     /**

@@ -20,7 +20,7 @@ public interface NewsListService {
      * @param pageSize
      * @return
      */
-    NewsListDTO newsListByColId(int colId, Integer page, Integer pageSize);
+    NewsListDTO newsListByColId(int colId, int page, int pageSize);
 
     /**
      * 按照栏目id查询子栏目
