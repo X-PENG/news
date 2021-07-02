@@ -9,6 +9,12 @@ spring:
     url: jdbc:mysql://47.99.61.90:3306/news_stage?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: PENG
     password: PENGmysqlserver666
+  #redis配置
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: peng123
+    database: 1
 
 #mybatis-plus配置
 mybatis-plus:
@@ -23,3 +29,6 @@ news:
   system:
     #如果要改变最大审核等级，就需要数据库管理员去数据库中新增没有的审核资源
     max-review-level: 6
+  cache:
+    prefix: "news-stage::"
+    expire: 3600
