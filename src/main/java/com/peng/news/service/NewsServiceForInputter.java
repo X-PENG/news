@@ -13,19 +13,20 @@ import com.peng.news.model.po.NewsPO;
  */
 public interface NewsServiceForInputter {
     /**
-     * 传稿人保存新闻：要么创建，要么更新：
-     * 1.当id为null就创建新闻，并根据tag设为草稿或上传成功状态；
-     * 2.当id不为null就更新新闻，并根据tag设为草稿或上传成功状态。
-     *      传稿人想更新新闻，必须满足：
-     *      1.首先，新闻必须是当前用户自己创建的；
-     *      2.新闻必须是“草稿状态”。
-     *
-     * 创建或更新新闻时，如果有外链，其他信息都不保存，设为null
+     * 创建新闻，并根据tag设为草稿或上传成功状态；
      * @param tag 1：草稿状态；2-上传成功状态
      * @param news
-     * @return 新闻id
+     * @return
      */
-    Integer saveNewsAsDraftOrUpload(int tag, NewsBeanForInputterSave news);
+    Integer createNewsAsDraftOrUpload(int tag, NewsBeanForInputterSave news);
+
+    /**
+     * 更新新闻，并根据tag设为草稿或上传成功状态。
+     * @param tag 1：草稿状态；2-上传成功状态
+     * @param news
+     * @return
+     */
+    Integer updateNewsAsDraftOrUpload(int tag, NewsBeanForInputterSave news);
 
     CustomizedPage<NewsPO> draftList(Integer page, Integer pageSize, QueryNewsBeanForInputter queryBean);
 

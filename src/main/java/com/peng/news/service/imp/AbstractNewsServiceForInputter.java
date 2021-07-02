@@ -14,24 +14,34 @@ import com.peng.news.util.UserUtils;
 public abstract class AbstractNewsServiceForInputter implements NewsServiceForInputter {
 
     @Override
-    public Integer saveNewsAsDraftOrUpload(int tag, NewsBeanForInputterSave news) {
-        Integer newsId = news.getId();
-        //不为null，则可能要更新新闻
-        if(newsId != null){
-            //确保传稿人更新的新闻存在，且是当前请求用户的草稿
-            assertNewsExistsAndBelongCurUserDraft(newsId);
+    public Integer createNewsAsDraftOrUpload(int tag, NewsBeanForInputterSave news) {
+        if(tag != 1 && tag != 2) {
+            throw new RuntimeException("不支持此操作！");
         }
 
         news.formatAndValidate();
-
-        if(tag == 1){
-            return newsId == null ? createNewsAsDraft(news) : saveAsDraft(news);
-        }else if(tag == 2){
-            return  newsId == null ? createNewsAsCompleted(news) : saveAsCompleted(news);
+        if(tag == 1) {
+            return createNewsAsDraft(news);
+        }else {
+            return createNewsAsCompleted(news);
         }
-        throw new RuntimeException("不支持此操作！");
     }
 
+    @Override
+    public Integer updateNewsAsDraftOrUpload(int tag, NewsBeanForInputterSave news) {
+        if(tag != 1 && tag != 2) {
+            throw new RuntimeException("不支持此操作！");
+        }
+
+        //确保传稿人更新的新闻存在，且是当前请求用户的草稿
+        assertNewsExistsAndBelongCurUserDraft(news.getId());
+        news.formatAndValidate();
+        if(tag == 1) {
+            return saveAsDraft(news);
+        }else {
+            return saveAsCompleted(news);
+        }
+    }
 
     /**
      * 确保id为newsId的新闻存在，且该新闻是当前请求用户的草稿

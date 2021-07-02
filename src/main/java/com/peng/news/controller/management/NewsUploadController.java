@@ -1,5 +1,6 @@
 package com.peng.news.controller.management;
 
+import com.peng.news.idempotent.IdempotentApi;
 import com.peng.news.model.CustomizedPage;
 import com.peng.news.model.Result;
 import com.peng.news.model.paramBean.NewsBeanForInputterSave;
@@ -28,21 +29,31 @@ public class NewsUploadController {
     }
 
     /**
-     * 创建新闻或保存新闻，状态设为草稿或完成上传的状态
-     * id为null，就创建；否则，保存修改
+     * 创建新闻，状态设为草稿或完成上传的状态
      * @param tag 1.草稿；2.完成上传
      * @return
      */
-    @PostMapping("/{tag}")
-    public Result saveNewsAsDraftOrUpload(@PathVariable int tag, @RequestBody NewsBeanForInputterSave news){
-        Integer paramId = news.getId();
-        Integer newsId = newsServiceForInputter.saveNewsAsDraftOrUpload(tag, news);
-
-        Result<Object> result = Result.success(tag == 1 ? "保存成功！" : "上传成功！");
-        if(paramId == null && tag == 1) {
+    @IdempotentApi
+    @PostMapping("/create/{tag}")
+    public Result createNewsAsDraftOrUpload(@PathVariable int tag, @RequestBody NewsBeanForInputterSave news){
+        Integer newsId = newsServiceForInputter.createNewsAsDraftOrUpload(tag, news);
+        Result<Object> result = Result.success("创建成功！");
+        if(tag == 1) {
             //表示是创建草稿，则返回新的草稿的id
             result.setData(newsId);
         }
+        return result;
+    }
+
+    /**
+     * 保存新闻，状态设为草稿或完成上传的状态
+     * @param tag 1.草稿；2.完成上传
+     * @return
+     */
+    @PostMapping("/save/{tag}")
+    public Result saveNewsAsDraftOrUpload(@PathVariable int tag, @RequestBody NewsBeanForInputterSave news){
+        newsServiceForInputter.updateNewsAsDraftOrUpload(tag, news);
+        Result<Object> result = Result.success("保存成功！");
         return result;
     }
 

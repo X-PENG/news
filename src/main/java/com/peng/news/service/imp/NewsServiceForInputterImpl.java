@@ -47,6 +47,7 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
 
     @Override
     protected Integer createNewsAsDraft(NewsBeanForInputterSave news) {
+        news.setId(null);
         NewsPO newsPO = new NewsPO();
         BeanUtils.copyProperties(news, newsPO);
         newsPO.setNewsStatus(NewsStatus.DRAFT.getCode());
@@ -59,6 +60,7 @@ public class NewsServiceForInputterImpl extends AbstractNewsServiceForInputter {
 
     @Override
     protected Integer createNewsAsCompleted(NewsBeanForInputterSave news) {
+        news.setId(null);
         UserVO curUser = UserUtils.getUser();
         NewsPO newsPO = new NewsPO();
         BeanUtils.copyProperties(news, newsPO);

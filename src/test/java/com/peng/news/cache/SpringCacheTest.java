@@ -20,20 +20,21 @@ public class SpringCacheTest {
 
     @Test
     public void t1() {
-        cacheManager.getCache("test").put(1, 1);
-        cacheManager.getCache("test").put(2, 2);
-        cacheManager.getCache("test").put(2, 3);
-        cacheManager.getCache("test").put(3, 4);
-        cacheManager.getCache("test").put(4, 5);
-        cacheManager.getCache("test1").put(1, 1);
-        cacheManager.getCache("test1").put(2, 2);
-        cacheManager.getCache("test1").put(2, 3);
-        cacheManager.getCache("test1").put(3, 4);
-        cacheManager.getCache("test1").put(4, 5);
+        cacheManager.getCache("test").put("a::1", "a1");
+        cacheManager.getCache("test").put("a::2", "a2");
+        cacheManager.getCache("test").put("a::3", "a3");
+        cacheManager.getCache("test").put("a::b::1", "a1");
+        cacheManager.getCache("test").put("a::b::2", "a2");
+        cacheManager.getCache("test").put("a::b::3", "a3");
+        cacheManager.getCache("test").put("b::1", "b1");
+        cacheManager.getCache("test").put("b::2", "b2");
+        cacheManager.getCache("test").put("b::3", "b3");
+        cacheManager.getCache("test::b").clear();//可删除test::b下的所有key
+        cacheManager.getCache("test::a::b").clear();//可删除test::a::b下的所有key
     }
 
     @Test
     public void t2() {
-        cacheManager.getCache("test1").clear();
+        cacheManager.getCache("test::b").clear();
     }
 }
