@@ -28,6 +28,7 @@ public abstract class AbstractIdempotentSupport implements IdempotentSupport {
         String convertKey = convertKey(request);
         ReentrantLock curUserLock = getCurUserLock();
         //加锁。判断痕迹+留痕必须是原子操作
+        //todo 【本地锁】在分布式环境下会失效，可以借鉴redis实现分布式锁，利用setnx+expire创建key（留痕），留痕成功则说明是第一个请求可以往下执行逻辑；否则，已经有人留痕（则非第一个请求），不能继续执行
         curUserLock.lock();
         try{
             if(hasMark(convertKey)) {
